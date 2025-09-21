@@ -19,7 +19,7 @@ class Graph {
   edge(from, to, weight) {
     const vFrom = this.#vertices.get(from);
     const vTo = this.#vertices.get(to);
-    if (vFrom === undefined || vTo === undefined) return;
+    if (vFrom === undefined || vTo === undefined) return this;
     vFrom.out ??= new Set();
     vFrom.out.add(vTo);
     if (this.directed) {
@@ -30,14 +30,33 @@ class Graph {
       const weights = vFrom.weights ??= new Map();
       weights.set(vTo, weight);
     }
+    return this;
   }
 
   getWeight(from, to) {
     if (!this.weighted) return;
     const vFrom = this.#vertices.get(from);
+    if (vFrom === undefined) return;
     const vTo = this.#vertices.get(to);
-    if (vFrom === undefined || vTo === undefined) return;
+    if (vTo === undefined) return;
     return vFrom?.weights?.get(vTo);
+  }
+
+  #getEdges(from, direction) {
+    const vertex = this.#vertices.get(from);
+    if (vertex === undefined || vertex[direction] === undefined) {
+      return null;
+    }
+    return [...vertex[direction]];
+  }
+
+  getOutEdges(from) {
+    return this.#getEdges(from, 'out');
+  }
+
+  getInEdges(from) {
+    const direction = this.directed ? 'in' : 'out';
+    return this.#getEdges(from, direction);
   }
 
   delete(value) {
@@ -51,12 +70,21 @@ class Graph {
     return this.#vertices.delete(value);
   }
 
-  hasEdges(from, to) {
+  #hasEdges(from, to, direction) {
     const vFrom = this.#vertices.get(from);
     if (vFrom === undefined) return false;
     const vTo = this.#vertices.get(to);
     if (vTo === undefined) return false;
-    return vFrom?.out?.has(vTo);
+    return vFrom?.[direction]?.has(vTo);
+  }
+
+  hasOutEdges(from, to) {
+    return this.#hasEdges(from, to, 'out');
+  }
+
+  hasInEdges(from, to) {
+    const direction = this.directed ? 'in' : 'out';
+    return this.#hasEdges(from, to, direction);
   }
 
   vertices() {
@@ -75,3 +103,5 @@ class Graph {
     return edges;
   }
 }
+
+module.exports = Graph;
