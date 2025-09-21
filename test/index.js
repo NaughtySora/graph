@@ -29,5 +29,11 @@ describe('graph', () => {
       assert.strictEqual(graph.hasOutEdges('c', 'a'), true);
       assert.strictEqual(graph.hasOutEdges('c', 'e'), false);
     });
+
+    it('delete edges', () => {
+      graph.delete('c', 'b');
+      assert.strictEqual(graph.hasInEdges('c', 'b'), false);
+      assert.strictEqual(graph.hasOutEdges('c', 'b'), false);
+    });
   });
 });

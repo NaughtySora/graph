@@ -33,15 +33,6 @@ class Graph {
     return this;
   }
 
-  getWeight(from, to) {
-    if (!this.weighted) return;
-    const vFrom = this.#vertices.get(from);
-    if (vFrom === undefined) return;
-    const vTo = this.#vertices.get(to);
-    if (vTo === undefined) return;
-    return vFrom?.weights?.get(vTo);
-  }
-
   #getEdges(from, direction) {
     const vertex = this.#vertices.get(from);
     if (vertex === undefined || vertex[direction] === undefined) {
@@ -59,17 +50,6 @@ class Graph {
     return this.#getEdges(from, direction);
   }
 
-  delete(value) {
-    const target = this.#vertices.get(value);
-    if (target === undefined) return false;
-    for (const v of this.#vertices.values()) {
-      v?.out.delete(target);
-      if (this.directed) v?.in.delete(target);
-      if (this.weighted) v?.weights?.delete(target);
-    }
-    return this.#vertices.delete(value);
-  }
-
   #hasEdges(from, to, direction) {
     const vFrom = this.#vertices.get(from);
     if (vFrom === undefined) return false;
@@ -85,6 +65,26 @@ class Graph {
   hasInEdges(from, to) {
     const direction = this.directed ? 'in' : 'out';
     return this.#hasEdges(from, to, direction);
+  }
+
+  delete(value) {
+    const target = this.#vertices.get(value);
+    if (target === undefined) return false;
+    for (const v of this.#vertices.values()) {
+      v?.out?.delete(target);
+      if (this.directed) v?.in?.delete(target);
+      if (this.weighted) v?.weights?.delete(target);
+    }
+    return this.#vertices.delete(value);
+  }
+
+  getWeight(from, to) {
+    if (!this.weighted) return;
+    const vFrom = this.#vertices.get(from);
+    if (vFrom === undefined) return;
+    const vTo = this.#vertices.get(to);
+    if (vTo === undefined) return;
+    return vFrom?.weights?.get(vTo);
   }
 
   vertices() {
