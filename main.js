@@ -1,5 +1,6 @@
 'use strict';
 
+
 class Graph {
   weighted = false;
   directed = false;
@@ -16,7 +17,23 @@ class Graph {
     return this;
   }
 
-  edge(from, to, weight) {
+  has(value) {
+    return this.#vertices.has(value);
+  }
+
+  delete(value) {
+    const vertex = this.#vertices.get(value);
+    if (vertex === undefined) return false;
+    const { directed, weighted } = this;
+    for (const vertex of this.#vertices.values()) {
+      if (vertex?.out !== undefined) vertex.out.delete(vertex);
+      if (directed && vertex?.in !== undefined) vertex.in.delete(vertex);
+      if (weighted && vertex?.weights !== undefined) vertex.weights.delete(vertex);
+    }
+    return this.#vertices.delete(value);
+  }
+
+  connect(from, to, weight) {
     const vFrom = this.#vertices.get(from);
     const vTo = this.#vertices.get(to);
     if (vFrom === undefined || vTo === undefined) return this;
@@ -31,6 +48,10 @@ class Graph {
       weights.set(vTo, weight);
     }
     return this;
+  }
+
+  disconnect() {
+
   }
 
   #getEdges(from, direction) {
@@ -67,15 +88,8 @@ class Graph {
     return this.#hasEdges(from, to, direction);
   }
 
-  delete(value) {
-    const target = this.#vertices.get(value);
-    if (target === undefined) return false;
-    for (const v of this.#vertices.values()) {
-      v?.out?.delete(target);
-      if (this.directed) v?.in?.delete(target);
-      if (this.weighted) v?.weights?.delete(target);
-    }
-    return this.#vertices.delete(value);
+  deleteEdge() {
+
   }
 
   getWeight(from, to) {
@@ -87,20 +101,23 @@ class Graph {
     return vFrom?.weights?.get(vTo);
   }
 
-  vertices() {
-    return this.#vertices.values();
+  *vertices() {
+    const vertices = this.#vertices.values();
+    while (true) {
+      const next = vertices.next();
+      if (next.done) return;
+      yield { value: next.value.value };
+    }
   }
 
-  edges() {
-    const edges = [];
+  *edges() {
     for (const entries of this.#vertices.entries()) {
       const list = entries[1]?.out;
       if (list === undefined) continue;
       for (const link of list) {
-        edges.push([entries[1], link]);
+        yield [entries[1].value, link.value];
       }
     }
-    return edges;
   }
 }
 
