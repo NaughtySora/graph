@@ -17,12 +17,12 @@ describe('graph', () => {
 
     it('get edges', () => {
       assert.deepStrictEqual(
-        graph.getOutEdges('c').map(item => item.value),
+        graph.getOutEdges('c'),
         ['a']
       );
       graph.connect('c', 'b');
       assert.deepStrictEqual(
-        graph.getInEdges('c').map(item => item.value),
+        graph.getInEdges('c'),
         ['a', 'b']
       );
     });
@@ -53,6 +53,14 @@ describe('graph', () => {
         [...graph.vertices()],
         [{ value: 'a' }, { value: 'b' }, { value: 'c' }, { value: 'e' }]
       )
+    });
+
+    it('disconnect edge', () => {
+      assert.deepStrictEqual(graph.getOutEdges('a'), ['b']);
+      assert.strictEqual(graph.disconnect('f', 'a'), false);
+      assert.strictEqual(graph.disconnect('a', 'f'), false);
+      assert.strictEqual(graph.disconnect('a', 'b'), true);
+      assert.deepStrictEqual(graph.getOutEdges('a'), []);
     });
   });
 });

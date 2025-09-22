@@ -17,6 +17,10 @@ class Graph {
     return this;
   }
 
+  update(value) {
+
+  }
+
   has(value) {
     return this.#vertices.has(value);
   }
@@ -35,8 +39,9 @@ class Graph {
 
   connect(from, to, weight) {
     const vFrom = this.#vertices.get(from);
+    if (vFrom === undefined) return this;
     const vTo = this.#vertices.get(to);
-    if (vFrom === undefined || vTo === undefined) return this;
+    if (vTo === undefined) return this;
     vFrom.out ??= new Set();
     vFrom.out.add(vTo);
     if (this.directed) {
@@ -50,16 +55,33 @@ class Graph {
     return this;
   }
 
-  disconnect() {
-
+  disconnect(from, to) {
+    const vFrom = this.#vertices.get(from);
+    if (vFrom === undefined) return false;
+    const vTo = this.#vertices.get(to);
+    if (vTo === undefined) return false;
+    if (vFrom?.out !== undefined) {
+      vFrom.out.delete(vTo);
+    }
+    if (this.directed && vTo?.in !== undefined) {
+      vTo.in.delete(vFrom);
+    }
+    if (this.weighted && vFrom?.weights !== undefined) {
+      vFrom.weights.delete(vTo);
+    }
+    return true;
   }
 
   #getEdges(from, direction) {
-    const vertex = this.#vertices.get(from);
-    if (vertex === undefined || vertex[direction] === undefined) {
+    const vFrom = this.#vertices.get(from);
+    if (vFrom === undefined || vFrom[direction] === undefined) {
       return null;
     }
-    return [...vertex[direction]];
+    const vertices = [];
+    for (const vertex of vFrom[direction]) {
+      vertices.push(vertex.value);
+    }
+    return vertices;
   }
 
   getOutEdges(from) {
@@ -99,6 +121,14 @@ class Graph {
     const vTo = this.#vertices.get(to);
     if (vTo === undefined) return;
     return vFrom?.weights?.get(vTo);
+  }
+
+  setWeight() {
+
+  }
+
+  deleteWeight() {
+
   }
 
   *vertices() {
