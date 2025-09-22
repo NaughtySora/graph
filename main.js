@@ -1,6 +1,5 @@
 'use strict';
 
-
 class Graph {
   weighted = false;
   directed = false;
@@ -17,8 +16,13 @@ class Graph {
     return this;
   }
 
-  update(value) {
-
+  update(prev, value) {
+    const vertex = this.#vertices.get(prev);
+    if (vertex === undefined) return false;
+    Object.assign(vertex, { value });
+    this.#vertices.set(value, vertex);
+    this.#vertices.delete(prev);
+    return true;
   }
 
   has(value) {
@@ -110,10 +114,6 @@ class Graph {
     return this.#hasEdges(from, to, direction);
   }
 
-  deleteEdge() {
-
-  }
-
   getWeight(from, to) {
     if (!this.weighted) return;
     const vFrom = this.#vertices.get(from);
@@ -123,12 +123,34 @@ class Graph {
     return vFrom?.weights?.get(vTo);
   }
 
-  setWeight() {
-
+  setWeight(from, to, weight) {
+    if (!this.weighted) return;
+    const vFrom = this.#vertices.get(from);
+    if (vFrom === undefined) return;
+    const vTo = this.#vertices.get(to);
+    if (vTo === undefined) return;
+    const weights = vFrom.weights ??= new Map();
+    weights.set(vTo, weight);
   }
 
-  deleteWeight() {
+  deleteWeight(from, to, weight) {
+    if (!this.weighted) return false;
+    const vFrom = this.#vertices.get(from);
+    if (vFrom === undefined) return false;
+    const vTo = this.#vertices.get(to);
+    if (vTo === undefined) return false;
+    if (vFrom.weights === undefined) return false;
+    return vFrom.weights.delete(vTo, weight);
+  }
 
+  hasWeight(from, to) {
+    if (!this.weighted) return false;
+    const vFrom = this.#vertices.get(from);
+    if (vFrom === undefined) return false;
+    const vTo = this.#vertices.get(to);
+    if (vTo === undefined) return false;
+    if (vFrom.weights === undefined) return false;
+    return vFrom.weights.has(vTo);
   }
 
   *vertices() {
