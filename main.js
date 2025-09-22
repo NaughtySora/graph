@@ -79,7 +79,7 @@ class Graph {
   #getEdges(from, direction) {
     const vFrom = this.#vertices.get(from);
     if (vFrom === undefined || vFrom[direction] === undefined) {
-      return null;
+      return [];
     }
     const vertices = [];
     for (const vertex of vFrom[direction]) {
@@ -97,21 +97,22 @@ class Graph {
     return this.#getEdges(from, direction);
   }
 
-  #hasEdges(from, to, direction) {
+  #hasEdge(from, to, direction) {
     const vFrom = this.#vertices.get(from);
     if (vFrom === undefined) return false;
     const vTo = this.#vertices.get(to);
     if (vTo === undefined) return false;
-    return vFrom?.[direction]?.has(vTo);
+    if (vFrom?.[direction] === undefined) return false;
+    return vFrom[direction].has(vTo);
   }
 
-  hasOutEdges(from, to) {
-    return this.#hasEdges(from, to, 'out');
+  hasOutEdge(from, to) {
+    return this.#hasEdge(from, to, 'out');
   }
 
-  hasInEdges(from, to) {
+  hasInEdge(from, to) {
     const direction = this.directed ? 'in' : 'out';
-    return this.#hasEdges(from, to, direction);
+    return this.#hasEdge(from, to, direction);
   }
 
   getWeight(from, to) {

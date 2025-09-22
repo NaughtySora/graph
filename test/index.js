@@ -20,26 +20,34 @@ describe('graph', () => {
         graph.getOutEdges('c'),
         ['a']
       );
+      assert.deepStrictEqual(
+        graph.getOutEdges('b'),
+        []
+      );
       graph.connect('c', 'b');
       assert.deepStrictEqual(
         graph.getInEdges('c'),
         ['a', 'b']
       );
+      assert.deepStrictEqual(
+        graph.getInEdges('b'),
+        []
+      );
     });
 
     it('has edges', () => {
       graph.connect('c', 'b');
-      assert.strictEqual(graph.hasInEdges('c', 'b'), true);
-      assert.strictEqual(graph.hasInEdges('c', 'e'), false);
-      assert.strictEqual(graph.hasOutEdges('c', 'a'), true);
-      assert.strictEqual(graph.hasOutEdges('c', 'e'), false);
+      assert.strictEqual(graph.hasInEdge('c', 'b'), true);
+      assert.strictEqual(graph.hasInEdge('c', 'e'), false);
+      assert.strictEqual(graph.hasOutEdge('c', 'a'), true);
+      assert.strictEqual(graph.hasOutEdge('c', 'e'), false);
     });
 
     it('delete edges', () => {
       assert.strictEqual(graph.delete('unknown'), false);
       assert.strictEqual(graph.delete('c'), true);
-      assert.strictEqual(graph.hasInEdges('c', 'b'), false);
-      assert.strictEqual(graph.hasOutEdges('c', 'b'), false);
+      assert.strictEqual(graph.hasInEdge('c', 'b'), false);
+      assert.strictEqual(graph.hasOutEdge('c', 'b'), false);
     });
 
     it('disconnect edge', () => {
@@ -111,6 +119,10 @@ describe('graph', () => {
       graph.connect('a', 'b', 'b');
       assert.strictEqual(graph.hasWeight('a', 'b'), false);
     });
+
+    it('delete weight', () => {
+      assert.strictEqual(graph.deleteWeight('a', 'b'), false);
+    });
   });
 
   describe('weighted', () => {
@@ -161,12 +173,90 @@ describe('graph', () => {
       assert.strictEqual(graph.getWeight(4, 'a'), undefined);
       assert.strictEqual(graph.deleteWeight('b', 'a'), false)
       assert.strictEqual(graph.getWeight('b', 'a'), undefined);
+      assert.strictEqual(graph.deleteWeight(1, 3), false);
+      assert.strictEqual(graph.deleteWeight(1, 'a'), false);
     });
 
     it('disconnect', () => {
       assert.strictEqual(graph.getWeight(2, 3), 'a');
       assert.strictEqual(graph.disconnect(2, 3), true);
       assert.strictEqual(graph.getWeight(2, 3), undefined);
+    });
+
+    it('delete vertex', () => {
+      assert.strictEqual(graph.getWeight(2, 3), 'a');
+      assert.strictEqual(graph.delete(2), true);
+      assert.strictEqual(graph.getWeight(2, 3), undefined);
+    });
+  });
+
+  describe('directed', () => {
+    let graph = null;
+
+    beforeEach(() => {
+      graph = new Graph({ directed: true });
+      graph.add('a').add('b').add('c').add('e');
+      graph.add('a');
+      graph.connect('a', 'b');
+      graph.connect('c', 'a');
+    });
+
+    it('get edges', () => {
+      assert.deepStrictEqual(
+        graph.getOutEdges('c'),
+        ['a']
+      );
+      assert.deepStrictEqual(
+        graph.getOutEdges('b'),
+        []
+      );
+      graph.connect('c', 'b');
+      assert.deepStrictEqual(
+        graph.getInEdges('c'),
+        []
+      );
+      assert.deepStrictEqual(
+        graph.getInEdges('b'),
+        ['a', 'c']
+      );
+    });
+
+    it('has edges', () => {
+      assert.strictEqual(graph.hasInEdge('c', 'b'), false);
+      assert.strictEqual(graph.hasInEdge('a', 'b'), false);
+      assert.strictEqual(graph.hasInEdge('a', 'c'), true);
+      assert.strictEqual(graph.hasOutEdge('c', 'a'), true);
+      assert.strictEqual(graph.hasOutEdge('c', 'd'), false);
+    });
+
+    it('delete edges', () => {
+      assert.strictEqual(graph.delete('unknown'), false);
+      assert.strictEqual(graph.hasInEdge('a', 'c'), true);
+      assert.strictEqual(graph.hasOutEdge('c', 'a'), true);
+      assert.strictEqual(graph.delete('c'), true);
+      assert.strictEqual(graph.hasInEdge('a', 'c'), false);
+      assert.strictEqual(graph.hasOutEdge('c', 'a'), false);
+    });
+
+    it('disconnect edge', () => {
+      assert.deepStrictEqual(graph.getOutEdges('a'), ['b']);
+      assert.strictEqual(graph.disconnect('f', 'a'), false);
+      assert.strictEqual(graph.disconnect('a', 'f'), false);
+      assert.strictEqual(graph.disconnect('a', 'b'), true);
+      assert.deepStrictEqual(graph.getOutEdges('a'), []);
+    });
+
+    it('has vertex', () => {
+      assert.strictEqual(graph.has('a'), true);
+      assert.strictEqual(graph.has('f'), false);
+      assert.strictEqual(graph.has('e'), true);
+    });
+
+    it('update vertex', () => {
+      assert.strictEqual(graph.update('a', 42), true);
+      assert.strictEqual(graph.update('f', 42), false);
+      assert.strictEqual(graph.has(42), true);
+      assert.strictEqual(graph.has('a'), false);
     });
   });
 });
