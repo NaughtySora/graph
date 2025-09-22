@@ -75,5 +75,98 @@ describe('graph', () => {
       assert.strictEqual(graph.has(42), true);
       assert.strictEqual(graph.has('a'), false);
     });
+
+    it('has weights', () => {
+      assert.strictEqual(graph.hasWeight('a', 'b'), false);
+      assert.strictEqual(graph.hasWeight(42, 1), false);
+      assert.strictEqual(graph.hasWeight(1, 'a'), false);
+      assert.strictEqual(graph.hasWeight('a', 1), false);
+    });
+
+    it('get weights', () => {
+      assert.strictEqual(graph.getWeight(2, 3), undefined);
+      assert.strictEqual(graph.getWeight('a', 'b'), undefined);
+      assert.strictEqual(graph.getWeight('a', 1), undefined);
+      assert.strictEqual(graph.getWeight(1, 'a'), undefined);
+    });
+
+    it('set weights', () => {
+      graph.setWeight('a', 'b', 'b');
+      assert.strictEqual(graph.getWeight('a', 'b'), undefined);
+      graph.setWeight('a', 4, 'b');
+      assert.strictEqual(graph.getWeight('a', 4), undefined);
+      graph.setWeight(4, 'b', 'b');
+      assert.strictEqual(graph.getWeight(4, 'b'), undefined);
+      graph.setWeight(2, 1, 'b');
+      assert.strictEqual(graph.getWeight(2, 1), undefined);
+    });
+
+    it('connect weights', () => {
+      graph.connect(2, 1, 'b');
+      assert.strictEqual(graph.hasWeight(2, 1), false);
+      graph.connect('a', 1, 'b');
+      assert.strictEqual(graph.hasWeight('a', 1), false);
+      graph.connect(2, 'a', 'b');
+      assert.strictEqual(graph.hasWeight(2, 'a'), false);
+      graph.connect('a', 'b', 'b');
+      assert.strictEqual(graph.hasWeight('a', 'b'), false);
+    });
+  });
+
+  describe('weighted', () => {
+    let graph = null;
+    beforeEach(() => {
+      graph = new Graph({ weighted: true })
+        .add(1).add(2).add(3);
+      graph.connect(2, 3, 'a');
+    });
+
+    it('has', () => {
+      assert.strictEqual(graph.hasWeight(2, 3), true);
+      assert.strictEqual(graph.hasWeight(1, 2), false);
+      assert.strictEqual(graph.hasWeight(1, 'a'), false);
+      assert.strictEqual(graph.hasWeight('a', 1), false);
+    });
+
+    it('connect', () => {
+      graph.connect(2, 1, 'b');
+      assert.strictEqual(graph.hasWeight(2, 1), true);
+      assert.strictEqual(graph.hasWeight(1, 2), false);
+    });
+
+    it('get', () => {
+      assert.strictEqual(graph.getWeight(2, 3), 'a');
+      assert.strictEqual(graph.getWeight(1, 2), undefined);
+      assert.strictEqual(graph.getWeight(1, 'a'), undefined);
+      assert.strictEqual(graph.getWeight('a', 1), undefined);
+    });
+
+    it('set', () => {
+      assert.strictEqual(graph.getWeight(2, 3), 'a');
+      graph.setWeight(2, 3, 'b');
+      assert.strictEqual(graph.getWeight(2, 3), 'b');
+      graph.setWeight(3, 4, 'b');
+      assert.strictEqual(graph.getWeight(3, 4), undefined);
+      graph.setWeight(4, 3, 'b');
+      assert.strictEqual(graph.getWeight(4, 3), undefined);
+    });
+
+    it('delete', () => {
+      assert.strictEqual(graph.getWeight(2, 3), 'a');
+      assert.strictEqual(graph.deleteWeight(2, 3), true);
+      assert.strictEqual(graph.getWeight(2, 3), undefined);
+      assert.strictEqual(graph.deleteWeight('a', 4), false)
+      assert.strictEqual(graph.getWeight('a', 4), undefined);
+      assert.strictEqual(graph.deleteWeight(4, 'a'), false)
+      assert.strictEqual(graph.getWeight(4, 'a'), undefined);
+      assert.strictEqual(graph.deleteWeight('b', 'a'), false)
+      assert.strictEqual(graph.getWeight('b', 'a'), undefined);
+    });
+
+    it('disconnect', () => {
+      assert.strictEqual(graph.getWeight(2, 3), 'a');
+      assert.strictEqual(graph.disconnect(2, 3), true);
+      assert.strictEqual(graph.getWeight(2, 3), undefined);
+    });
   });
 });
