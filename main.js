@@ -164,11 +164,15 @@ class Graph {
   }
 
   *edges() {
+    const visited = new Set();
     for (const entries of this.#vertices.entries()) {
+      const value = entries[1].value;
+      if (visited.has(value)) continue;
       const list = entries[1]?.out;
       if (list === undefined) continue;
       for (const link of list) {
-        yield [entries[1].value, link.value];
+        visited.add(link.value);
+        yield [value, link.value];
       }
     }
   }
@@ -182,7 +186,7 @@ class Graph {
     visited.add(vertex.value);
     if (vertex.out === undefined) return visited;
     for (const link of vertex.out) {
-      if (!visited.has(link)) this.dfs(link, visited);
+      if (!visited.has(link.value)) this.dfs(link, visited);
     }
     return visited;
   }
@@ -196,10 +200,10 @@ class Graph {
     for (let i = 0; i < queue.length; i++) {
       const vertex = queue[i];
       if (vertex.out === undefined) continue;
-      for (const connection of vertex.out) {
-        if (!visited.has(connection)) {
-          visited.add(connection.value);
-          queue.push(connection);
+      for (const link of vertex.out) {
+        if (!visited.has(link.value)) {
+          visited.add(link.value);
+          queue.push(link);
         }
       }
     }
