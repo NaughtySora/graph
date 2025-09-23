@@ -85,7 +85,7 @@ class Graph {
     for (const vertex of vFrom[direction]) {
       vertices.push(vertex.value);
     }
-    return vertices;
+    return [...vertices];
   }
 
   getOutEdges(from) {
