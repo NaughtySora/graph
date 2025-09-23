@@ -48,10 +48,9 @@ class Graph {
     if (vTo === undefined) return this;
     vFrom.out ??= new Set();
     vFrom.out.add(vTo);
-    if (this.directed) {
-      vTo.in ??= new Set();
-      vTo.in.add(vFrom);
-    }
+    const direction = this.directed ? "in" : "out";
+    vTo[direction] ??= new Set();
+    vTo[direction].add(vFrom);
     if (this.weighted && weight !== undefined) {
       const weights = vFrom.weights ??= new Map();
       weights.set(vTo, weight);
@@ -64,13 +63,14 @@ class Graph {
     if (vFrom === undefined) return false;
     const vTo = this.#vertices.get(to);
     if (vTo === undefined) return false;
-    if (vFrom?.out !== undefined) {
+    if (vFrom.out !== undefined) {
       vFrom.out.delete(vTo);
     }
-    if (this.directed && vTo?.in !== undefined) {
-      vTo.in.delete(vFrom);
+    const direction = this.directed ? "in" : "out";
+    if (vTo[direction] !== undefined) {
+      vTo[direction].delete(vFrom);
     }
-    if (this.weighted && vFrom?.weights !== undefined) {
+    if (this.weighted && vFrom.weights !== undefined) {
       vFrom.weights.delete(vTo);
     }
     return true;
@@ -173,6 +173,10 @@ class Graph {
     }
   }
 
+  degree() { }
+
+  connectivity() { }
+
   dfs(vertex = this.#vertices.values().next().value, visited = new Set()) {
     if (!vertex) return visited;
     visited.add(vertex.value);
@@ -201,6 +205,26 @@ class Graph {
     }
     queue = null;
     return visited;
+  }
+
+  wcc() {
+    const groups = [];
+    const visited = new Set();
+    const dfs = (vertex, group) => {
+      visited.add(vertex);
+      group.push(vertex.value);
+      if (vertex.out === undefined) return;
+      for (const link of vertex.out) {
+        if (!visited.has(link)) dfs(link, group);
+      }
+    };
+    for (const vertex of this.#vertices.values()) {
+      if (visited.has(vertex)) continue;
+      const group = [];
+      dfs(vertex, group);
+      groups.push(group);
+    }
+    return groups;
   }
 }
 
