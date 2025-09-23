@@ -123,6 +123,11 @@ describe('graph', () => {
     it('delete weight', () => {
       assert.strictEqual(graph.deleteWeight('a', 'b'), false);
     });
+
+    it('dfs', () => {
+      assert.deepStrictEqual([...graph.dfs()], ['a', 'b']);
+      assert.deepStrictEqual([...graph.dfs(null)], []);
+    });
   });
 
   describe('weighted', () => {

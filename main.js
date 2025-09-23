@@ -172,6 +172,16 @@ class Graph {
       }
     }
   }
+
+  dfs(vertex = this.#vertices.values().next().value, visited = new Set()) {
+    if (!vertex) return visited;
+    visited.add(vertex.value);
+    if (vertex.out === undefined) return visited;
+    for (const link of vertex.out) {
+      if (!visited.has(link)) this.dfs(link, visited);
+    }
+    return visited;
+  }
 }
 
 module.exports = Graph;
