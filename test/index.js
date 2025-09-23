@@ -128,6 +128,11 @@ describe('graph', () => {
       assert.deepStrictEqual([...graph.dfs()], ['a', 'b']);
       assert.deepStrictEqual([...graph.dfs(null)], []);
     });
+
+    it('bfs', () => {
+      assert.deepStrictEqual([...graph.bfs()], ['a', 'b']);
+      assert.deepStrictEqual([...new Graph().bfs()], []);
+    });
   });
 
   describe('weighted', () => {

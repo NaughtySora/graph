@@ -182,6 +182,26 @@ class Graph {
     }
     return visited;
   }
+
+  bfs() {
+    const vertex = this.#vertices.values().next().value;
+    const visited = new Set();
+    if (vertex === undefined) return visited;
+    let queue = [vertex];
+    visited.add(vertex.value);
+    for (let i = 0; i < queue.length; i++) {
+      const vertex = queue[i];
+      if (vertex.out === undefined) continue;
+      for (const connection of vertex.out) {
+        if (!visited.has(connection)) {
+          visited.add(connection.value);
+          queue.push(connection);
+        }
+      }
+    }
+    queue = null;
+    return visited;
+  }
 }
 
 module.exports = Graph;
