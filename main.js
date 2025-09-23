@@ -180,7 +180,6 @@ class Graph {
   degree(value) {
     const vertex = this.#vertices.get(value);
     if (vertex === undefined || vertex.out === undefined) return 0;
-    console.dir(vertex)
     return vertex.out.size;
   }
 
@@ -236,7 +235,40 @@ class Graph {
       if (visited.has(vertex)) continue;
       const group = [];
       dfs(vertex, group);
-      groups.push(group);
+      if (group.length > 0) groups.push(group);
+    }
+    return groups;
+  }
+
+  scc() {
+    if (!this.directed) return this.wcc();
+    const stack = [];
+    const visited = new Set();
+    const dfs = (vertex, direction, stack) => {
+      visited.add(vertex);
+      if (vertex[direction] !== undefined) {
+        for (const link of vertex[direction]) {
+          if (!visited.has(link)) {
+            dfs(link, direction, stack);
+          }
+        }
+      }
+      stack.push(vertex);
+    };
+    for (const vertex of this.#vertices.values()) {
+      if (visited.has(vertex)) continue;
+      dfs(vertex, 'out', stack);
+    }
+    visited.clear();
+    const groups = [];
+    while (stack.length > 0) {
+      const group = [];
+      const vertex = stack.pop();
+      if (visited.has(vertex)) continue;
+      dfs(vertex, 'in', group);
+      if (group.length > 0) {
+        groups.push(group.map(vertex => vertex.value));
+      }
     }
     return groups;
   }

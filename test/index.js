@@ -150,6 +150,10 @@ describe('graph', () => {
     it('wcc', () => {
       assert.deepStrictEqual(graph.wcc(), [['a', 'b', 'c'], ['e']]);
     });
+
+    it('scc', () => {
+      assert.deepStrictEqual(graph.scc(), graph.wcc());
+    });
   });
 
   describe('weighted', () => {
@@ -298,6 +302,12 @@ describe('graph', () => {
       assert.strictEqual(graph.connectivity('c'), 0);
       assert.strictEqual(graph.connectivity('e'), 0);
       assert.strictEqual(graph.connectivity('b'), 1);
+    });
+
+    it('scc', () => {
+      assert.deepStrictEqual(graph.scc(), [['e'], ['c',], ['a',], ['b']]);
+      graph.connect('b', 'c');
+      assert.deepStrictEqual(graph.scc(), [['e'], ['b', 'c', 'a']]);
     });
   });
 });
