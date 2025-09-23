@@ -126,11 +126,13 @@ describe('graph', () => {
     it('dfs', () => {
       assert.deepStrictEqual([...graph.dfs()], ['a', 'b', 'c']);
       assert.deepStrictEqual([...graph.dfs(null)], []);
+      assert.deepStrictEqual([...new Graph().add('a').dfs()], ['a']);
     });
 
     it('bfs', () => {
       assert.deepStrictEqual([...graph.bfs()], ['a', 'b', 'c']);
       assert.deepStrictEqual([...new Graph().bfs()], []);
+      assert.deepStrictEqual([...new Graph().add('a').bfs()], ['a']);
     });
 
     it('wcc', () => {
@@ -138,7 +140,7 @@ describe('graph', () => {
     });
   });
 
-  describe.skip('weighted', () => {
+  describe('weighted', () => {
     let graph = null;
     beforeEach(() => {
       graph = new Graph({ weighted: true })
@@ -203,7 +205,7 @@ describe('graph', () => {
     });
   });
 
-  describe.skip('directed', () => {
+  describe('directed', () => {
     let graph = null;
 
     beforeEach(() => {
