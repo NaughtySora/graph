@@ -177,9 +177,19 @@ class Graph {
     }
   }
 
-  degree() { }
+  degree(value) {
+    const vertex = this.#vertices.get(value);
+    if (vertex === undefined || vertex.out === undefined) return 0;
+    console.dir(vertex)
+    return vertex.out.size;
+  }
 
-  connectivity() { }
+  connectivity(value) {
+    if (!this.directed) return this.degree(value);
+    const vertex = this.#vertices.get(value);
+    if (vertex === undefined || vertex.in === undefined) return 0;
+    return vertex.in.size;
+  }
 
   dfs(vertex = this.#vertices.values().next().value, visited = new Set()) {
     if (!vertex) return visited;

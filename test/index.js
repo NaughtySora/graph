@@ -123,6 +123,18 @@ describe('graph', () => {
       assert.strictEqual(graph.deleteWeight('a', 'b'), false);
     });
 
+    it('degree', () => {
+      assert.strictEqual(graph.degree('a'), 2);
+      assert.strictEqual(graph.degree('b'), 1);
+      assert.strictEqual(graph.degree('e'), 0);
+    });
+
+    it('connectivity', () => {
+      assert.strictEqual(graph.connectivity('a'), 2);
+      assert.strictEqual(graph.connectivity('b'), 1);
+      assert.strictEqual(graph.connectivity('e'), 0);
+    });
+
     it('dfs', () => {
       assert.deepStrictEqual([...graph.dfs()], ['a', 'b', 'c']);
       assert.deepStrictEqual([...graph.dfs(null)], []);
@@ -272,6 +284,20 @@ describe('graph', () => {
       assert.strictEqual(graph.update('f', 42), false);
       assert.strictEqual(graph.has(42), true);
       assert.strictEqual(graph.has('a'), false);
+    });
+
+    it('degree', () => {
+      assert.strictEqual(graph.degree('a'), 1);
+      assert.strictEqual(graph.degree('c'), 1);
+      assert.strictEqual(graph.degree('e'), 0);
+      assert.strictEqual(graph.degree('b'), 0);
+    });
+
+    it('connectivity', () => {
+      assert.strictEqual(graph.connectivity('a'), 1);
+      assert.strictEqual(graph.connectivity('c'), 0);
+      assert.strictEqual(graph.connectivity('e'), 0);
+      assert.strictEqual(graph.connectivity('b'), 1);
     });
   });
 });
