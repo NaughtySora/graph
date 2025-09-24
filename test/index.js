@@ -338,7 +338,6 @@ describe('graph', () => {
       assert.deepStrictEqual(graph.scc(), [['e'], ['b', 'c', 'a']]);
     });
 
-
     it('hasCycles', () => {
       const graph = new Graph({ directed: true });
       assert.strictEqual(graph.hasCycles(), false);
@@ -354,6 +353,18 @@ describe('graph', () => {
       assert.strictEqual(graph.hasCycles(), false);
       graph.connect('b', 'a');
       assert.strictEqual(graph.hasCycles(), true);
+    });
+
+    describe('topological sort basic DAG', () => {
+      const graph = new Graph({ directed: true });
+      graph.add('a').add('b').add('c').add('d');
+      graph.connect('a', 'b');
+      graph.connect('a', 'c');
+      graph.connect('c', 'b');
+      graph.connect('b', 'd');
+      assert.deepStrictEqual(graph.topologicalSort(), ['a', 'c', 'b', 'd']);
+      graph.connect('b', 'a');
+      assert.deepStrictEqual(graph.topologicalSort(), []);
     });
   });
 });

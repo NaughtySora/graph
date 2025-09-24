@@ -306,6 +306,27 @@ class Graph {
     }
     return false;
   }
+
+  topologicalSort() {
+    if (this.hasCycles()) return [];
+    const visited = new Set();
+    const stack = [];
+    const dfs = (vertex) => {
+      visited.add(vertex);
+      if (vertex.out !== undefined) {
+        for (const link of vertex.out) {
+          if (visited.has(link)) continue;
+          dfs(link);
+        }
+      }
+      stack.push(vertex.value);
+    };
+    for (const vertex of this.#vertices.values()) {
+      if (visited.has(vertex)) continue;
+      dfs(vertex);
+    }
+    return stack.reverse();
+  }
 }
 
 
