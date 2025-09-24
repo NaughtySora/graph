@@ -1,13 +1,18 @@
 'use strict';
+/**
+ * selfCycling tests
+ * weighted, directed, selfCycling private fields
+ */
 
 class Graph {
   weighted = false;
   directed = false;
   #vertices = new Map();
 
-  constructor({ weighted = false, directed = false } = {}) {
+  constructor({ weighted = false, directed = false, selfCycling = false } = {}) {
     this.weighted = weighted;
     this.directed = directed;
+    this.selfCycling = selfCycling;
   }
 
   add(value) {
@@ -42,6 +47,7 @@ class Graph {
   }
 
   connect(from, to, weight) {
+    if (from === to && !this.selfCycling) return;
     const vFrom = this.#vertices.get(from);
     if (vFrom === undefined) return this;
     const vTo = this.#vertices.get(to);
@@ -126,6 +132,7 @@ class Graph {
 
   setWeight(from, to, weight) {
     if (!this.weighted) return;
+    if (from === to && !this.selfCycling) return;
     const vFrom = this.#vertices.get(from);
     if (vFrom === undefined) return;
     const vTo = this.#vertices.get(to);
@@ -272,6 +279,7 @@ class Graph {
     }
     return groups;
   }
+
 }
 
 module.exports = Graph;
