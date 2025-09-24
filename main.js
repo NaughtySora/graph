@@ -1,8 +1,4 @@
 'use strict';
-/**
- * selfCycling tests
- * weighted, directed, selfCycling private fields
- */
 
 class Graph {
   #weighted = false;
@@ -282,6 +278,35 @@ class Graph {
     return groups;
   }
 
+  hasCycles() {
+    if (!this.#directed && this.#vertices.size > 0) {
+      for (const v of this.#vertices.values()) {
+        if (v.out === undefined) continue;
+        if (v.out.size > 0) return true;
+      }
+      return false;
+    }
+    const visited = new Set();
+    const active = new Set();
+    const detectCycle = vertex => {
+      visited.add(vertex);
+      active.add(vertex);
+      if (vertex.out === undefined) return false;
+      for (const link of vertex.out) {
+        if (!visited.has(link)) {
+          if (detectCycle(link)) return true;
+        } else if (active.has(link)) return true;
+      }
+      active.delete(vertex);
+      return false;
+    };
+    for (const vertex of this.#vertices.values()) {
+      if (visited.has(vertex)) continue;
+      if (detectCycle(vertex)) return true;
+    }
+    return false;
+  }
 }
+
 
 module.exports = Graph;

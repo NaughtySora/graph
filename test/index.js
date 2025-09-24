@@ -119,6 +119,17 @@ describe('graph', () => {
       assert.strictEqual(graph.hasWeight('a', 'b'), false);
     });
 
+    it('hasCycles', () => {
+      const graph = new Graph();
+      assert.strictEqual(graph.hasCycles(), false);
+      graph.add('a').add('b');
+      assert.strictEqual(graph.hasCycles(), false);
+      graph.connect('a', 'a');
+      assert.strictEqual(graph.hasCycles(), false);
+      graph.connect('a', 'b');
+      assert.strictEqual(graph.hasCycles(), true);
+    });
+
     it('delete weight', () => {
       assert.strictEqual(graph.deleteWeight('a', 'b'), false);
     });
@@ -181,8 +192,10 @@ describe('graph', () => {
 
       const selfCycled = new Graph({ weighted: true, selfCycling: true });
       selfCycled.add('a');
+      selfCycled.connect('a', 'a', 42);
+      assert.strictEqual(selfCycled.hasWeight('a', 'a'), true);
       graph.connect('a', 'a', 42);
-      assert.strictEqual(graph.hasWeight('a', 'a'), true);
+      assert.strictEqual(graph.hasWeight('a', 'a'), false);
     });
 
     it('get', () => {
@@ -323,6 +336,24 @@ describe('graph', () => {
       assert.deepStrictEqual(graph.scc(), [['e'], ['c',], ['a',], ['b']]);
       graph.connect('b', 'c');
       assert.deepStrictEqual(graph.scc(), [['e'], ['b', 'c', 'a']]);
+    });
+
+
+    it('hasCycles', () => {
+      const graph = new Graph({ directed: true });
+      assert.strictEqual(graph.hasCycles(), false);
+      graph.add('a').add('b');
+      assert.strictEqual(graph.hasCycles(), false);
+      graph.connect('a', 'a');
+      assert.strictEqual(graph.hasCycles(), false);
+      graph.connect('a', 'b');
+      assert.strictEqual(graph.hasCycles(), false);
+      graph.connect('c', 'a');
+      assert.strictEqual(graph.hasCycles(), false);
+      graph.connect('c', 'b');
+      assert.strictEqual(graph.hasCycles(), false);
+      graph.connect('b', 'a');
+      assert.strictEqual(graph.hasCycles(), true);
     });
   });
 });
