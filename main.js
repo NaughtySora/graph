@@ -5,17 +5,22 @@
  */
 
 class Graph {
-  weighted = false;
-  directed = false;
+  #weighted = false;
+  #directed = false;
   #vertices = new Map();
 
   constructor({ weighted = false, directed = false, selfCycling = false } = {}) {
-    this.weighted = weighted;
-    this.directed = directed;
+    this.#weighted = weighted;
+    this.#directed = directed;
     this.selfCycling = selfCycling;
   }
 
+  get #direction() {
+    return this.#directed ? "in" : "out";
+  }
+
   add(value) {
+    this.#direction;
     if (this.#vertices.has(value)) return this;
     this.#vertices.set(value, { value, });
     return this;
@@ -37,7 +42,8 @@ class Graph {
   delete(value) {
     const vertex = this.#vertices.get(value);
     if (vertex === undefined) return false;
-    const { directed, weighted } = this;
+    const weighted = this.#weighted;
+    const directed = this.#directed;
     for (const vertex of this.#vertices.values()) {
       if (vertex?.out !== undefined) vertex.out.delete(vertex);
       if (directed && vertex?.in !== undefined) vertex.in.delete(vertex);
@@ -54,10 +60,9 @@ class Graph {
     if (vTo === undefined) return this;
     vFrom.out ??= new Set();
     vFrom.out.add(vTo);
-    const direction = this.directed ? "in" : "out";
-    vTo[direction] ??= new Set();
-    vTo[direction].add(vFrom);
-    if (this.weighted && weight !== undefined) {
+    vTo[this.#direction] ??= new Set();
+    vTo[this.#direction].add(vFrom);
+    if (this.#weighted && weight !== undefined) {
       const weights = vFrom.weights ??= new Map();
       weights.set(vTo, weight);
     }
@@ -72,11 +77,10 @@ class Graph {
     if (vFrom.out !== undefined) {
       vFrom.out.delete(vTo);
     }
-    const direction = this.directed ? "in" : "out";
-    if (vTo[direction] !== undefined) {
-      vTo[direction].delete(vFrom);
+    if (vTo[this.#direction] !== undefined) {
+      vTo[this.#direction].delete(vFrom);
     }
-    if (this.weighted && vFrom.weights !== undefined) {
+    if (this.#weighted && vFrom.weights !== undefined) {
       vFrom.weights.delete(vTo);
     }
     return true;
@@ -99,8 +103,7 @@ class Graph {
   }
 
   getInEdges(from) {
-    const direction = this.directed ? 'in' : 'out';
-    return this.#getEdges(from, direction);
+    return this.#getEdges(from, this.#direction);
   }
 
   #hasEdge(from, to, direction) {
@@ -117,12 +120,11 @@ class Graph {
   }
 
   hasInEdge(from, to) {
-    const direction = this.directed ? 'in' : 'out';
-    return this.#hasEdge(from, to, direction);
+    return this.#hasEdge(from, to, this.#direction);
   }
 
   getWeight(from, to) {
-    if (!this.weighted) return;
+    if (!this.#weighted) return;
     const vFrom = this.#vertices.get(from);
     if (vFrom === undefined) return;
     const vTo = this.#vertices.get(to);
@@ -131,7 +133,7 @@ class Graph {
   }
 
   setWeight(from, to, weight) {
-    if (!this.weighted) return;
+    if (!this.#weighted) return;
     if (from === to && !this.selfCycling) return;
     const vFrom = this.#vertices.get(from);
     if (vFrom === undefined) return;
@@ -142,7 +144,7 @@ class Graph {
   }
 
   deleteWeight(from, to, weight) {
-    if (!this.weighted) return false;
+    if (!this.#weighted) return false;
     const vFrom = this.#vertices.get(from);
     if (vFrom === undefined) return false;
     const vTo = this.#vertices.get(to);
@@ -152,7 +154,7 @@ class Graph {
   }
 
   hasWeight(from, to) {
-    if (!this.weighted) return false;
+    if (!this.#weighted) return false;
     const vFrom = this.#vertices.get(from);
     if (vFrom === undefined) return false;
     const vTo = this.#vertices.get(to);
@@ -191,7 +193,7 @@ class Graph {
   }
 
   connectivity(value) {
-    if (!this.directed) return this.degree(value);
+    if (!this.#directed) return this.degree(value);
     const vertex = this.#vertices.get(value);
     if (vertex === undefined || vertex.in === undefined) return 0;
     return vertex.in.size;
@@ -248,7 +250,7 @@ class Graph {
   }
 
   scc() {
-    if (!this.directed) return this.wcc();
+    if (!this.#directed) return this.wcc();
     const stack = [];
     const visited = new Set();
     const dfs = (vertex, direction, stack) => {

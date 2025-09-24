@@ -158,6 +158,7 @@ describe('graph', () => {
 
   describe('weighted', () => {
     let graph = null;
+
     beforeEach(() => {
       graph = new Graph({ weighted: true })
         .add(1).add(2).add(3);
@@ -175,6 +176,13 @@ describe('graph', () => {
       graph.connect(2, 1, 'b');
       assert.strictEqual(graph.hasWeight(2, 1), true);
       assert.strictEqual(graph.hasWeight(1, 2), false);
+      graph.connect('a', 'a', 42);
+      assert.strictEqual(graph.hasWeight('a', 'a'), false);
+
+      const selfCycled = new Graph({ weighted: true, selfCycling: true });
+      selfCycled.add('a');
+      graph.connect('a', 'a', 42);
+      assert.strictEqual(graph.hasWeight('a', 'a'), true);
     });
 
     it('get', () => {
@@ -192,6 +200,13 @@ describe('graph', () => {
       assert.strictEqual(graph.getWeight(3, 4), undefined);
       graph.setWeight(4, 3, 'b');
       assert.strictEqual(graph.getWeight(4, 3), undefined);
+      graph.setWeight(1, 1, 'b');
+      assert.strictEqual(graph.getWeight(4, 3), undefined);
+      const selfCycled = new Graph({ weighted: true, selfCycling: true });
+      selfCycled.add(1);
+      selfCycled.setWeight(1, 1, 42);
+      assert.strictEqual(selfCycled.getWeight(1, 1), 42);
+      assert.strictEqual(graph.getWeight(1, 1), undefined);
     });
 
     it('delete', () => {
