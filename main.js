@@ -377,7 +377,6 @@ class Graph {
       const path = [];
       let pointer = edge;
       while (pointer !== undefined) {
-        console.log(pointer)
         path.push(pointer);
         pointer = parent.get(pointer);
       }
