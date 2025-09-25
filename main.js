@@ -328,35 +328,36 @@ class Graph {
     return stack.reverse();
   }
 
-  #pathOne(from, to) {
-    const queue = [from];
+  #pathOne(vertex, to) {
+    if (this.#vertices.get(to) === undefined) return [];
+    const queue = [vertex];
     const visited = new Set();
-    visited.add(from.value);
-    const dist = new Map([[from, 0]]);
-    while (queue.length > 0) {
-      const vertex = queue.pop();
+    visited.add(vertex.value);
+    const edges = new Map();
+    for (let i = 0; i < queue.length; i++) {
+      const vertex = queue[i];
       if (vertex.out === undefined) continue;
       for (const link of vertex.out) {
         if (visited.has(link.value)) continue;
         visited.add(link.value);
-        dist.set(link, dist.get(vertex) + 1);
-        console.log(dist);
-        if (link.value === to) return [...dist];
+        edges.set(link.value, vertex.value);
         queue.push(link);
+        if (edges.has(to)) break;
       }
     }
-    return [...dist];
-  }
-
-  #pathMany(from) {
-
+    let edge = to;
+    const path = [];
+    while (edge !== undefined) {
+      path[path.length] = edge;
+      edge = edges.get(edge);
+    }
+    return path.reverse();
   }
 
   shortPath(from, to) {
     const vertex = this.#vertices.get(from);
     if (vertex === undefined) return [];
     if (to !== undefined) return this.#pathOne(vertex, to);
-    return this.#pathMany(vertex);
   }
 }
 

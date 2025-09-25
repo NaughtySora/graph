@@ -367,7 +367,7 @@ describe('graph', () => {
       assert.deepStrictEqual(graph.topologicalSort(), []);
     });
 
-    describe.only('shortPath', () => {
+    describe('shortPath', () => {
       it('with from and to', () => {
         const graph = new Graph({ directed: true });
         graph.add('A').add('B').add('C').add('D').add('E');
@@ -377,25 +377,25 @@ describe('graph', () => {
         graph.connect('C', 'D');
         graph.connect('D', 'E');
         const path = graph.shortPath('A', 'E');
-        console.log(path);
-        // assert.deepStrictEqual(path, ['A', 'B', 'D', 'E']);
+        assert.deepStrictEqual(path, ['A', 'B', 'D', 'E']);
 
-        // {
-        //   const graph = new Graph({ directed: true });
-        //   graph.addEdge('X', 'Y');
-        //   graph.addEdge('Y', 'Z');
-        //   graph.addEdge('X', 'Z');
-        //   const path = graph.shortPath('X', 'Z');
-        //   assert.deepStrictEqual(path, ['X', 'Z']);
-        // }
+        {
+          const graph = new Graph({ directed: true });
+          graph.add('X').add('Y').add('Z');
+          graph.connect('X', 'Y');
+          graph.connect('Y', 'Z');
+          graph.connect('X', 'Z');
+          const path = graph.shortPath('X', 'Z');
+          assert.deepStrictEqual(path, ['X', 'Z']);
+        }
 
-        // {
-        //   const graph = new Graph({ directed: true });
-        //   graph.add('A', 'B');
-        //   graph.add('C', 'D');
-        //   const path = graph.shortPath('A', 'D');
-        //   assert.deepStrictEqual(path, []);
-        // }
+        {
+          const graph = new Graph({ directed: true });
+          graph.add('A', 'B');
+          graph.add('C', 'D');
+          const path = graph.shortPath('A', 'D');
+          assert.deepStrictEqual(path, []);
+        }
       });
 
     });
