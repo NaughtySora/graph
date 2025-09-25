@@ -359,7 +359,7 @@ class Graph {
     const queue = [vertex];
     const visited = new Set();
     visited.add(vertex.value);
-    const dist = new Map();
+    const dist = new Map([[vertex.value, 0]]);
     const parent = new Map();
     for (let i = 0; i < queue.length; i++) {
       const vertex = queue[i];
@@ -367,12 +367,24 @@ class Graph {
       for (const link of vertex.out) {
         if (visited.has(link.value)) continue;
         visited.add(link.value);
-        dist.set(link.value, vertex.value);
-        parent.set(link.value,);
+        parent.set(link.value, vertex.value);
+        dist.set(link.value, dist.get(vertex.value) + 1);
         queue.push(link);
       }
     }
-    // console.log(dist, parent);
+    const paths = new Map();
+    for (const edge of dist.keys()) {
+      const path = [];
+      let pointer = edge;
+      while (pointer !== undefined) {
+        console.log(pointer)
+        path.push(pointer);
+        pointer = parent.get(pointer);
+      }
+      if (path.length === 1 && path[0] === edge) continue;
+      paths.set(edge, path.reverse());
+    }
+    return paths;
   }
 
   shortPath(from, to) {

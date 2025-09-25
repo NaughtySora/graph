@@ -180,13 +180,24 @@ describe('graph', () => {
       );
 
       assert.deepStrictEqual(
+        graph.shortPath('G', 'E'),
+        []
+      );
+
+      assert.deepStrictEqual(
+        graph.shortPath('A', 'G'),
+        []
+      );
+
+      assert.deepStrictEqual(
         graph.shortPath('C', 'E'),
         ['C', 'A', 'B', 'D', 'E']
       );
 
-      // const reachableFromA = graph.shortPath('A');
-      // const reachableValues = Array.from(reachableFromA.keys());
-      // assert.deepStrictEqual(new Set(reachableValues), new Set(['A', 'B', 'C', 'D', 'E']));
+      assert.deepStrictEqual(
+        [...graph.shortPath('A').keys()],
+        ['B', 'C', 'D', 'E']
+      );
     });
   });
 
@@ -408,9 +419,10 @@ describe('graph', () => {
         []
       );
 
-      // const reachableFromX = graph.shortPath('X');
-      // const reachableValues = Array.from(reachableFromX.keys());
-      // assert.deepStrictEqual(new Set(reachableValues), new Set(['X', 'Y', 'Z', 'W']));
+      assert.deepStrictEqual(
+        [...graph.shortPath('X').keys()],
+        ['Y', 'Z', 'W']
+      );
     });
   });
 });
