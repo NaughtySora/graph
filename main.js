@@ -332,17 +332,20 @@ class Graph {
     const queue = [from];
     const visited = new Set();
     visited.add(from.value);
+    const dist = new Map([[from, 0]]);
     while (queue.length > 0) {
       const vertex = queue.pop();
       if (vertex.out === undefined) continue;
       for (const link of vertex.out) {
         if (visited.has(link.value)) continue;
         visited.add(link.value);
-        if (link.value === to) return visited;
+        dist.set(link, dist.get(vertex) + 1);
+        console.log(dist);
+        if (link.value === to) return [...dist];
         queue.push(link);
       }
     }
-    return visited;
+    return [...dist];
   }
 
   #pathMany(from) {
