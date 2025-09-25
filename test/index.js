@@ -165,6 +165,29 @@ describe('graph', () => {
     it('scc', () => {
       assert.deepStrictEqual(graph.scc(), graph.wcc());
     });
+
+    it('shortPath BFS', () => {
+      const graph = new Graph();
+      graph.add('A').add('B').add('C').add('D').add('E');
+      graph.connect('A', 'B');
+      graph.connect('A', 'C');
+      graph.connect('B', 'D');
+      graph.connect('D', 'E');
+
+      assert.deepStrictEqual(
+        graph.shortPath('A', 'E'),
+        ['A', 'B', 'D', 'E']
+      );
+
+      assert.deepStrictEqual(
+        graph.shortPath('C', 'E'),
+        ['C', 'A', 'B', 'D', 'E']
+      );
+
+      // const reachableFromA = graph.shortPath('A');
+      // const reachableValues = Array.from(reachableFromA.keys());
+      // assert.deepStrictEqual(new Set(reachableValues), new Set(['A', 'B', 'C', 'D', 'E']));
+    });
   });
 
   describe('weighted', () => {
@@ -355,7 +378,7 @@ describe('graph', () => {
       assert.strictEqual(graph.hasCycles(), true);
     });
 
-    describe('topological sort basic DAG', () => {
+    it('topological sort basic DAG', () => {
       const graph = new Graph({ directed: true });
       graph.add('a').add('b').add('c').add('d');
       graph.connect('a', 'b');
@@ -367,52 +390,27 @@ describe('graph', () => {
       assert.deepStrictEqual(graph.topologicalSort(), []);
     });
 
-    describe('shortPath', () => {
-      it('with from and to', () => {
-        const graph = new Graph({ directed: true });
-        graph.add('A').add('B').add('C').add('D').add('E');
-        graph.connect('A', 'B');
-        graph.connect('A', 'C');
-        graph.connect('B', 'D');
-        graph.connect('C', 'D');
-        graph.connect('D', 'E');
-        const path = graph.shortPath('A', 'E');
-        assert.deepStrictEqual(path, ['A', 'B', 'D', 'E']);
+    it('shortPath BFS ', () => {
+      const graph = new Graph({ directed: true });
+      graph.add('X').add('Y').add('Z').add('W');
+      graph.connect('X', 'Y');
+      graph.connect('X', 'Z');
+      graph.connect('Y', 'W');
+      graph.connect('Z', 'W');
 
-        {
-          const graph = new Graph({ directed: true });
-          graph.add('X').add('Y').add('Z');
-          graph.connect('X', 'Y');
-          graph.connect('Y', 'Z');
-          graph.connect('X', 'Z');
-          const path = graph.shortPath('X', 'Z');
-          assert.deepStrictEqual(path, ['X', 'Z']);
-        }
+      assert.deepStrictEqual(
+        graph.shortPath('X', 'W'),
+        ['X', 'Y', 'W']
+      );
 
-        {
-          const graph = new Graph({ directed: true });
-          graph.add('A', 'B');
-          graph.add('C', 'D');
-          const path = graph.shortPath('A', 'D');
-          assert.deepStrictEqual(path, []);
-        }
-      });
+      assert.deepStrictEqual(
+        graph.shortPath('Z', 'Y'),
+        []
+      );
 
+      // const reachableFromX = graph.shortPath('X');
+      // const reachableValues = Array.from(reachableFromX.keys());
+      // assert.deepStrictEqual(new Set(reachableValues), new Set(['X', 'Y', 'Z', 'W']));
     });
-
   });
 });
-
-// describe("test short bfs", () => {
-//   const graph = new Graph({ directed: true });
-//   graph.add('a').add('b').add('c').add('d').add('e');
-//   graph.connect('a', 'b');
-//   graph.connect('a', 'c');
-//   graph.connect('b', 'd');
-//   graph.connect('c', 'd');
-//   graph.connect('d', 'e');
-//   // a -> e
-//   // a->b->d->e | a->c->d->e
-//   const res = graph.shortPath('a', 'c');
-//   console.log({ res });
-// });

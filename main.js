@@ -345,19 +345,41 @@ class Graph {
         if (edges.has(to)) break;
       }
     }
-    let edge = to;
-    const path = [];
+    if (edges.get(to) === undefined) return [];
+    let edge = edges.get(to);
+    const path = [to];
     while (edge !== undefined) {
-      path[path.length] = edge;
+      path.push(edge);
       edge = edges.get(edge);
     }
     return path.reverse();
+  }
+
+  #pathMany(vertex) {
+    const queue = [vertex];
+    const visited = new Set();
+    visited.add(vertex.value);
+    const dist = new Map();
+    const parent = new Map();
+    for (let i = 0; i < queue.length; i++) {
+      const vertex = queue[i];
+      if (vertex.out === undefined) continue;
+      for (const link of vertex.out) {
+        if (visited.has(link.value)) continue;
+        visited.add(link.value);
+        dist.set(link.value, vertex.value);
+        parent.set(link.value,);
+        queue.push(link);
+      }
+    }
+    // console.log(dist, parent);
   }
 
   shortPath(from, to) {
     const vertex = this.#vertices.get(from);
     if (vertex === undefined) return [];
     if (to !== undefined) return this.#pathOne(vertex, to);
+    return this.#pathMany(vertex);
   }
 }
 
