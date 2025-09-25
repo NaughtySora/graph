@@ -15,7 +15,8 @@
     "main.d.ts"
   ],
   "scripts": {
-    "test": "c8 node test/index.js"
+    "test": "c8 node test/index.js",
+    "peek": "node test/index.js"
   },
   "repository": {
     "type": "git",

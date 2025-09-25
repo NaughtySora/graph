@@ -366,5 +366,51 @@ describe('graph', () => {
       graph.connect('b', 'a');
       assert.deepStrictEqual(graph.topologicalSort(), []);
     });
+
+    describe.only('shortPath', () => {
+      it('with from and to', () => {
+        const graph = new Graph({ directed: true });
+        graph.add('A', 'B');
+        graph.add('A', 'C');
+        graph.add('B', 'D');
+        graph.add('C', 'D');
+        graph.add('D', 'E');
+        const path = graph.shortPath('A', 'E');
+        assert.deepStrictEqual(path, ['A', 'B', 'D', 'E']);
+
+        {
+          const graph = new Graph({ directed: true });
+          graph.addEdge('X', 'Y');
+          graph.addEdge('Y', 'Z');
+          graph.addEdge('X', 'Z');
+          const path = graph.shortPath('X', 'Z');
+          assert.deepStrictEqual(path, ['X', 'Z']);
+        }
+
+        {
+          const graph = new Graph({ directed: true });
+          graph.add('A', 'B');
+          graph.add('C', 'D');
+          const path = graph.shortPath('A', 'D');
+          assert.deepStrictEqual(path, []);
+        }
+      });
+
+    });
+
   });
 });
+
+// describe("test short bfs", () => {
+//   const graph = new Graph({ directed: true });
+//   graph.add('a').add('b').add('c').add('d').add('e');
+//   graph.connect('a', 'b');
+//   graph.connect('a', 'c');
+//   graph.connect('b', 'd');
+//   graph.connect('c', 'd');
+//   graph.connect('d', 'e');
+//   // a -> e
+//   // a->b->d->e | a->c->d->e
+//   const res = graph.shortPath('a', 'c');
+//   console.log({ res });
+// });

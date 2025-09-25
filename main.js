@@ -327,7 +327,34 @@ class Graph {
     }
     return stack.reverse();
   }
-}
 
+  #pathOne(from, to) {
+    const queue = [from];
+    const visited = new Set();
+    visited.add(from.value);
+    while (queue.length > 0) {
+      const vertex = queue.pop();
+      if (vertex.out === undefined) continue;
+      for (const link of vertex.out) {
+        if (visited.has(link.value)) continue;
+        visited.add(link.value);
+        if (link.value === to) return visited;
+        queue.push(link);
+      }
+    }
+    return visited;
+  }
+
+  #pathMany(from) {
+
+  }
+
+  shortPath(from, to) {
+    const vertex = this.#vertices.get(from);
+    if (vertex === undefined) return [];
+    if (to !== undefined) return this.#pathOne(vertex, to);
+    return this.#pathMany(vertex);
+  }
+}
 
 module.exports = Graph;
