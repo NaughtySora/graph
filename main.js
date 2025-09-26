@@ -401,8 +401,48 @@ class Graph {
   }
 }
 
+// node <= children, 2 children, left to right
+// completed tree
+// min elements on top, rest not fully sorted
 class MinHeap {
-  
+  // 2i+1, 2i+2
+  #tree = [];
+  #compare = null;
+
+  constructor(compare = MinHeap.#compare) {
+    this.#compare = compare;
+  }
+
+  #toLeft(value) {
+
+  }
+
+  #toRight(value){
+    
+  }
+
+  push(value) {
+    // while filling a dataset into heap O(n log n)
+    this.#tree.push(value);
+    this.#toLeft(value);
+  }
+
+  shift() {
+    // get first, move last to the start, compare with children
+  }
+
+  peek() {
+    // return but do not shift the root
+  }
+
+  heapify() {
+    // load arr elements, bubble every from the end
+    // O(n)
+  }
+
+  static #compare(a, b) {
+    return a - b;
+  }
 }
 
 module.exports = Graph;
