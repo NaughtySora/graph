@@ -392,6 +392,17 @@ class Graph {
     if (to !== undefined) return this.#pathOne(vertex, to);
     return this.#pathMany(vertex);
   }
+
+  // weighted, non-negative, shortpath
+  #dijkstra() { }
+
+  shortPathWeighted({ from, to, unsigned = true } = {}) { // change to false when both algos are done
+
+  }
+}
+
+class MinHeap {
+  
 }
 
 module.exports = Graph;
