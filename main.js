@@ -404,27 +404,45 @@ class Graph {
 // node <= children, 2 children, left to right
 // completed tree
 // min elements on top, rest not fully sorted
+
+[1, 2, 3, 4, 5, 6];
+
+[1,
+  [
+    [2, [4, 5]],
+    [3]
+  ]
+];
+
 class MinHeap {
   // 2i+1, 2i+2
   #tree = [];
   #compare = null;
 
-  constructor(compare = MinHeap.#compare) {
+  constructor(compare = MinHeap.#comparator) {
     this.#compare = compare;
   }
 
-  #toLeft(value) {
-
+  #toLeft(index) {
+    const parent = Math.floor((index - 1) / 2);
+    if (parent < 0) return;
+    const tree = this.#tree;
+    const factor = this.#compare(tree[index], tree[parent]);
+    if (factor < 0) {
+      [tree[parent], tree[index]] = [tree[index], tree[parent]];
+      return void this.#toLeft(parent);
+    }
   }
 
-  #toRight(value){
-    
+  #toRight(value) {
+
   }
 
   push(value) {
     // while filling a dataset into heap O(n log n)
+    const index = this.#tree.length;
     this.#tree.push(value);
-    this.#toLeft(value);
+    this.#toLeft(index);
   }
 
   shift() {
@@ -440,9 +458,7 @@ class MinHeap {
     // O(n)
   }
 
-  static #compare(a, b) {
-    return a - b;
-  }
+  static #comparator = (a, b) => a - b;
 }
 
 module.exports = Graph;
