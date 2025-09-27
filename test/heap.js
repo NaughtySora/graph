@@ -5,6 +5,13 @@ const BinaryHeap = require("../lib/BinaryHeap.js");
 const assert = require("node:assert");
 
 describe('BinaryHeap', () => {
+
+  it('compare should be function', () => {
+    assert.throws(() => {
+      new BinaryHeap();
+    }, { message: "Binary heap requires a compare function" });
+  });
+
   describe('MaxHeap', () => {
     let heap = new BinaryHeap((a, b) => b - a);
     beforeEach(() => {
