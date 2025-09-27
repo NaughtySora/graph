@@ -281,6 +281,38 @@ describe('graph', () => {
       assert.strictEqual(graph.delete(2), true);
       assert.strictEqual(graph.getWeight(2, 3), undefined);
     });
+
+    describe("short path weighted, only positive weights", () => {
+      describe('directed', () => {
+        it('from/to', () => {
+          const graph = new Graph({ weighted: true, directed: true });
+          graph.add('a').add('b').add('c').add('d');
+          graph.connect('a', 'b', 1);
+          graph.connect('a', 'c', 4);
+          graph.connect('b', 'c', 2);
+          graph.connect('b', 'd', 6);
+          graph.connect('c', 'd', 3);
+          const { distance, cost, path } = graph.shortPathWeighted({ from: 'a', to: 'd' });
+          assert.strictEqual(distance, null);
+          assert.strictEqual(cost, 6);
+          assert.deepStrictEqual(path, ['a', 'b', 'c', 'd']);
+        });
+
+        it('from', () => {
+          const graph = new Graph({ weighted: true, directed: true });
+          graph.add('a').add('b').add('c').add('d');
+          graph.connect('a', 'b', 1);
+          graph.connect('a', 'c', 4);
+          graph.connect('b', 'c', 2);
+          graph.connect('b', 'd', 6);
+          graph.connect('c', 'd', 3);
+          const { distance, cost, path } = graph.shortPathWeighted({ from: 'a' });
+          assert.deepStrictEqual(distance, new Map([['b', 1], ['c', 3], ['d', 6]]));
+          assert.strictEqual(cost, -1);
+          assert.strictEqual(path, null);
+        });
+      });
+    });
   });
 
   describe('directed', () => {
@@ -427,15 +459,3 @@ describe('graph', () => {
   });
 });
 
-
-describe.only("test", () => {
-  const graph = new Graph({ weighted: true, directed: true });
-  graph.add('a').add('b').add('c').add('d');
-  graph.connect('a', 'b', 1);
-  graph.connect('a', 'c', 4);
-  graph.connect('b', 'c', 2);
-  graph.connect('b', 'd', 6);
-  graph.connect('c', 'd', 3);
-  const dist = graph.shortPathWeighted({ from: 'a', to: 'd' });
-  console.log({ dist });
-});

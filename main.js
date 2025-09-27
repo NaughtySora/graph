@@ -1,6 +1,6 @@
 'use strict';
 
-const BinaryHeap = require("./lib/BinaryHeap");
+const BinaryHeap = require("./lib/BinaryHeap.js");
 
 class Graph {
   #weighted = false;
@@ -432,7 +432,11 @@ class Graph {
     }
     queue.clear();
     visited.clear();
-    return { distance, path: [] };
+    return {
+      distance,
+      path: null,
+      cost: -1,
+    };
   }
 
   #dijkstraOne(from, to) {
@@ -473,7 +477,11 @@ class Graph {
       target = next;
     }
     parent.clear();
-    return { distance: dist.get(to), path: path.reverse() };
+    return {
+      distance: null,
+      path: path.reverse(),
+      cost: dist.get(to)
+    };
   }
 
   shortPathWeighted({ from, to, negativeWeights = false } = {}) {
