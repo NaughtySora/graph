@@ -4,7 +4,7 @@ const { describe, it, beforeEach } = require("node:test");
 const BinaryHeap = require("../lib/BinaryHeap.js");
 const assert = require("node:assert");
 
-describe.only('BinaryHeap', () => {
+describe('BinaryHeap', () => {
   describe('MaxHeap', () => {
     let heap = new BinaryHeap((a, b) => b - a);
     beforeEach(() => {

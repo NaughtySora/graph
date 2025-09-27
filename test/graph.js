@@ -426,3 +426,16 @@ describe('graph', () => {
     });
   });
 });
+
+
+describe.only("test", () => {
+  const graph = new Graph({ weighted: true, directed: true });
+  graph.add('a').add('b').add('c').add('d');
+  graph.connect('a', 'b', 1);
+  graph.connect('a', 'c', 4);
+  graph.connect('b', 'c', 2);
+  graph.connect('b', 'd', 6);
+  graph.connect('c', 'd', 3);
+  const dist = graph.shortPathWeighted({ from: 'a', to: 'd' });
+  console.log({ dist });
+});

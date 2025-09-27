@@ -1,5 +1,7 @@
 'use strict';
 
+const BinaryHeap = require("./lib/BinaryHeap");
+
 class Graph {
   #weighted = false;
   #directed = false;
@@ -325,12 +327,13 @@ class Graph {
       if (visited.has(vertex)) continue;
       dfs(vertex);
     }
+    visited.clear();
     return stack.reverse();
   }
 
   #pathOne(vertex, to) {
-    if (this.#vertices.get(to) === undefined) return [];
-    const queue = [vertex];
+    if (!this.#vertices.has(to)) return [];
+    let queue = [vertex];
     const visited = new Set();
     visited.add(vertex.value);
     const edges = new Map();
@@ -345,18 +348,21 @@ class Graph {
         if (edges.has(to)) break;
       }
     }
-    if (edges.get(to) === undefined) return [];
+    queue = null;
+    visited.clear();
     let edge = edges.get(to);
+    if (edge === undefined) return (edges.clear(), []);
     const path = [to];
     while (edge !== undefined) {
       path.push(edge);
       edge = edges.get(edge);
     }
+    edges.clear();
     return path.reverse();
   }
 
   #pathMany(vertex) {
-    const queue = [vertex];
+    let queue = [vertex];
     const visited = new Set();
     visited.add(vertex.value);
     const dist = new Map([[vertex.value, 0]]);
@@ -372,6 +378,8 @@ class Graph {
         queue.push(link);
       }
     }
+    visited.clear();
+    queue = null;
     const paths = new Map();
     for (const edge of dist.keys()) {
       const path = [];
@@ -383,6 +391,8 @@ class Graph {
       if (path.length === 1 && path[0] === edge) continue;
       paths.set(edge, path.reverse());
     }
+    dist.clear();
+    parent.clear();
     return paths;
   }
 
@@ -393,11 +403,89 @@ class Graph {
     return this.#pathMany(vertex);
   }
 
-  // weighted, non-negative, shortpath
-  #dijkstra() { }
+  #dijkstraMany(vertex) {
+    const dist = new Map([[vertex, 0]]);
+    const distance = new Map();
+    const visited = new Set();
+    const queue = new BinaryHeap((a, b) => a.value - b.value);
+    queue.push({ vertex, value: 0 });
+    let item = queue.shift();
+    while (item !== undefined) {
+      const vertex = item.vertex;
+      if (!visited.has(vertex)) {
+        visited.add(vertex);
+        if (vertex.out !== undefined && vertex.weights !== undefined) {
+          for (const link of vertex.out) {
+            const weight = vertex.weights.get(link);
+            if (weight === undefined) continue;
+            const current = dist.get(link) ?? Infinity;
+            const min = Math.min(current, dist.get(vertex) + weight);
+            if (current > min) {
+              dist.set(link, min);
+              distance.set(link.value, min);
+              queue.push({ vertex: link, value: min });
+            }
+          }
+        }
+      }
+      item = queue.shift();
+    }
+    queue.clear();
+    visited.clear();
+    return { distance, path: [] };
+  }
 
-  shortPathWeighted({ from, to, unsigned = true } = {}) { // change to false when both algos are done
+  #dijkstraOne(from, to) {
+    const dist = new Map([[from, 0]]);
+    const parent = new Map();
+    const visited = new Set();
+    const queue = new BinaryHeap((a, b) => a.value - b.value);
+    queue.push({ vertex: from, value: 0 });
+    let item = queue.shift();
+    while (item !== undefined) {
+      const vertex = item.vertex;
+      if (!visited.has(vertex)) {
+        visited.add(vertex);
+        if (vertex.out !== undefined && vertex.weights !== undefined) {
+          for (const link of vertex.out) {
+            const weight = vertex.weights.get(link);
+            if (weight === undefined) continue;
+            const current = dist.get(link) ?? Infinity;
+            const min = Math.min(current, dist.get(vertex) + weight);
+            if (current > min) {
+              dist.set(link, min);
+              parent.set(link.value, vertex.value);
+              queue.push({ vertex: link, value: min });
+            }
+          }
+        }
+      }
+      item = queue.shift();
+    }
+    queue.clear();
+    visited.clear();
+    const path = [to.value];
+    let target = to.value;
+    for (; ;) {
+      const next = parent.get(target);
+      if (next === undefined) break;
+      path.push(next);
+      target = next;
+    }
+    parent.clear();
+    return { distance: dist.get(to), path: path.reverse() };
+  }
 
+  shortPathWeighted({ from, to, negativeWeights = false } = {}) {
+    const vFrom = this.#vertices.get(from);
+    if (vFrom === undefined) return null;
+    const vTo = this.#vertices.get(to);
+    if (negativeWeights) {
+      throw new Error('negativeWeights algo is not implemented yet');
+    } else {
+      if (vTo !== undefined) return this.#dijkstraOne(vFrom, vTo);
+      return this.#dijkstraMany(vFrom);
+    }
   }
 }
 
