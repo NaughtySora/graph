@@ -484,17 +484,15 @@ class Graph {
     };
   }
 
-  #bellmanFord(from, to) {
-    const vFrom = this.#vertices.get(from);
-    if (vFrom === undefined) return;
+  #bellmanFord(from) {
     const paths = new Map();
-    const dist = new Map([[vFrom.value, 0]]);
+    const dist = new Map([[from, 0]]);
     let totalVertices = this.#vertices.size - 1;
     let touched = false;
     while (totalVertices-- > 0) {
       touched = false;
       for (const vertex of this.#vertices.values()) {
-        const cost = dist.get(vertex.value);
+        const cost = dist.get(vertex.value) ?? Infinity;
         if (vertex.out !== undefined && vertex.weights !== undefined) {
           for (const link of vertex.out) {
             const distCost = dist.get(link.value) ?? Infinity;
@@ -510,21 +508,7 @@ class Graph {
       }
       if (!touched) break;
     }
-    const path = [to];
-    let pointer = to;
-    let max = paths.size + 1;
-    while (pointer !== undefined) {
-      if (--max === -1) break;
-      const next = paths.get(pointer);
-      if (next) path.push(next);
-      pointer = next;
-    }
-    paths.clear();
-    return {
-      distance: dist.get(to),
-      path: path.reverse(),
-      cycle: max === -1,
-    };
+    return { dist, paths };
   }
 
   shortPathWeighted({ from, to, negativeWeights = false } = {}) {
@@ -532,7 +516,30 @@ class Graph {
     if (vFrom === undefined) return null;
     const vTo = this.#vertices.get(to);
     if (negativeWeights) {
-      return this.#bellmanFord(from, to);
+      const findPath = target => {
+        const path = [target];
+        let pointer = target;
+        let max = paths.size + 1;
+        while (pointer !== undefined) {
+          if (--max === -1) break;
+          const next = paths.get(pointer);
+          if (next) path.push(next);
+          pointer = next;
+        }
+        return {
+          distance: dist.get(target) ?? Infinity,
+          path: path.reverse(),
+          cycle: max === -1,
+        };
+      };
+      const { dist, paths } = this.#bellmanFord(from);
+      if (vTo !== undefined) return findPath(to);
+      const dataset = [];
+      for (const vertex of this.#vertices.values()) {
+        if (vertex === vFrom) continue;
+        dataset.push(findPath(vertex.value));
+      }
+      return dataset;
     } else {
       if (vTo !== undefined) return this.#dijkstraOne(vFrom, vTo);
       return this.#dijkstraMany(vFrom);

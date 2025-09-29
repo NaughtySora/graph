@@ -3,6 +3,7 @@
 const Graph = require('../main.js');
 const { describe, it, beforeEach } = require('node:test');
 const assert = require('node:assert');
+const { misc } = require('naughty-util');
 
 describe('graph', () => {
   describe('undirected', () => {
@@ -282,7 +283,7 @@ describe('graph', () => {
       assert.strictEqual(graph.getWeight(2, 3), undefined);
     });
 
-    describe("short path weighted, only positive weights", () => {
+    describe("Dijkstra short path only positive weights", () => {
       describe('directed', () => {
         it('from/to', () => {
           const graph = new Graph({ weighted: true, directed: true });
@@ -340,6 +341,123 @@ describe('graph', () => {
           assert.deepStrictEqual(distance, new Map([['b', 1], ['c', 3], ['d', 6]]));
           assert.strictEqual(cost, -1);
           assert.strictEqual(path, null);
+        });
+      });
+    });
+
+    describe("Bellman-Ford short path positive/negative weights", () => {
+      it('Bellman-Ford - positive weights', () => {
+        const graph = new Graph({ directed: true, weighted: true });
+        graph.add('A').add('B').add('C');
+        graph.connect('A', 'B', 2);
+        graph.connect('B', 'C', 3);
+        const result = graph.shortPathWeighted({ from: 'A', to: 'C', negativeWeights: true });
+        assert.deepStrictEqual(result.path, ['A', 'B', 'C']);
+        assert.strictEqual(result.distance, 5);
+      });
+
+      it('Bellman-Ford - negative weight', () => {
+        const graph = new Graph({ directed: true, weighted: true });
+        graph.add('A').add('B').add('C');
+        graph.connect('A', 'B', 2);
+        graph.connect('B', 'C', -1);
+        const result = graph.shortPathWeighted({ from: 'A', to: 'C', negativeWeights: true });
+        assert.deepStrictEqual(result.path, ['A', 'B', 'C']);
+        assert.strictEqual(result.distance, 1);
+      });
+
+      it('Bellman-Ford - negative cycle', () => {
+        const graph = new Graph({ directed: true, weighted: true });
+        graph.add('A').add('B').add('C');
+        graph.connect('A', 'B', 1);
+        graph.connect('B', 'C', -2);
+        graph.connect('C', 'A', -2);
+        const result = graph.shortPathWeighted({ from: 'A', to: 'C', negativeWeights: true });
+        assert.strictEqual(result.cycle, true);
+      });
+
+      describe('Bellman-Ford - no destination', () => {
+        it('wrong from parameter', () => {
+          const graph = new Graph({ directed: true, weighted: true });
+          graph.add('A').add('B').add('C');
+          graph.connect('A', 'B', 1);
+          graph.connect('B', 'C', 2);
+          const result = graph.shortPathWeighted({ from: 'D' });
+          assert.strictEqual(result, null);
+        });
+
+        it('all positive', () => {
+          const graph = new Graph({ directed: true, weighted: true });
+          graph.add('A').add('B').add('C');
+          graph.connect('A', 'B', 1);
+          graph.connect('B', 'C', 2);
+          const result = graph.shortPathWeighted({ from: 'A', negativeWeights: true });
+          const expected = [
+            { distance: 1, path: ['A', 'B'], cycle: false },
+            { distance: 3, path: ['A', 'B', 'C'], cycle: false }
+          ];
+          for (const { 0: res, 1: index } of misc.enumerate(result)) {
+            const exp = expected[index];
+            assert.strictEqual(res.distance, exp.distance);
+            assert.deepStrictEqual(res.path, exp.path);
+            assert.strictEqual(res.cycle, exp.cycle);
+          }
+        });
+
+        it('all positive one connection', () => {
+          const graph = new Graph({ directed: true, weighted: true });
+          graph.add('A').add('B').add('C').add('D');
+          graph.connect('A', 'B', 1);
+          graph.connect('C', 'D', 1);
+          const result = graph.shortPathWeighted({ from: 'A', negativeWeights: true });
+          const expected = [
+            { distance: 1, path: ['A', 'B'], cycle: false },
+            { distance: Infinity, path: ['C'], cycle: false },
+            { distance: Infinity, path: ['D'], cycle: false }
+          ];
+          for (const { 0: res, 1: index } of misc.enumerate(result)) {
+            const exp = expected[index];
+            assert.strictEqual(res.distance, exp.distance);
+            assert.deepStrictEqual(res.path, exp.path);
+            assert.strictEqual(res.cycle, exp.cycle);
+          }
+        });
+
+        it('negative/positive', () => {
+          const graph = new Graph({ directed: true, weighted: true });
+          graph.add('A').add('B').add('C');
+          graph.connect('A', 'B', 3);
+          graph.connect('B', 'C', -2);
+          const result = graph.shortPathWeighted({ from: 'A', negativeWeights: true });
+          const expected = [
+            { distance: 3, path: ['A', 'B'], cycle: false },
+            { distance: 1, path: ['A', 'B', 'C'], cycle: false }
+          ];
+          for (const { 0: res, 1: index } of misc.enumerate(result)) {
+            const exp = expected[index];
+            assert.strictEqual(res.distance, exp.distance);
+            assert.deepStrictEqual(res.path, exp.path);
+            assert.strictEqual(res.cycle, exp.cycle);
+          }
+        });
+
+        it('negative/positive cycle', () => {
+          const graph = new Graph({ directed: true, weighted: true });
+          graph.add('A').add('B').add('C');
+          graph.connect('A', 'B', 1);
+          graph.connect('B', 'C', -2);
+          graph.connect('C', 'A', -2);
+          const result = graph.shortPathWeighted({ from: 'A', negativeWeights: true });
+          const expected = [
+            { distance: -2, path: ['A', 'B', 'C', 'A', 'B'], cycle: true },
+            { distance: -4, path: ['B', 'C', 'A', 'B', 'C'], cycle: true }
+          ];
+          for (const { 0: res, 1: index } of misc.enumerate(result)) {
+            const exp = expected[index];
+            assert.strictEqual(res.distance, exp.distance);
+            assert.deepStrictEqual(res.path, exp.path);
+            assert.strictEqual(res.cycle, exp.cycle);
+          }
         });
       });
     });
@@ -486,60 +604,5 @@ describe('graph', () => {
         ['Y', 'Z', 'W']
       );
     });
-  });
-});
-
-
-describe.only("bellman-ford", () => {
-  // const graph = new Graph({ directed: true, weighted: true });
-  // graph.add('a').add('b').add('c').add('d');
-  // graph.connect('a', 'b', 1);
-  // graph.connect('a', 'c', -4);
-  // graph.connect('b', 'c', 2);
-  // graph.connect('b', 'd', -2);
-  // graph.connect('c', 'd', 3);
-
-  // // a -> b 
-  // // a -> c
-  // // b -> c
-  // // b -> d 
-  // // c -> d
-  // // a -> b -> c -> d 1+2+3 = 6
-  // // a -> c -> d -4 + 3 = -1
-  // const res = graph.shortPathWeighted({
-  //   from: 'a',
-  //   to: 'd',
-  //   negativeWeights: true
-  // });
-  // console.dir({ res });
-
-  it('Bellman-Ford - positive weights', () => {
-    const graph = new Graph({ directed: true, weighted: true });
-    graph.add('A').add('B').add('C');
-    graph.connect('A', 'B', 2);
-    graph.connect('B', 'C', 3);
-    const result = graph.shortPathWeighted({ from: 'A', to: 'C', negativeWeights: true });
-    assert.deepStrictEqual(result.path, ['A', 'B', 'C']);
-    assert.strictEqual(result.distance, 5);
-  });
-
-  it('Bellman-Ford - negative weight', () => {
-    const graph = new Graph({ directed: true, weighted: true });
-    graph.add('A').add('B').add('C');
-    graph.connect('A', 'B', 2);
-    graph.connect('B', 'C', -1);
-    const result = graph.shortPathWeighted({ from: 'A', to: 'C', negativeWeights: true });
-    assert.deepStrictEqual(result.path, ['A', 'B', 'C']);
-    assert.strictEqual(result.distance, 1);
-  });
-
-  it('Bellman-Ford - negative cycle', () => {
-    const graph = new Graph({ directed: true, weighted: true });
-    graph.add('A').add('B').add('C');
-    graph.connect('A', 'B', 1);
-    graph.connect('B', 'C', -2);
-    graph.connect('C', 'A', -2);
-    const result = graph.shortPathWeighted({ from: 'A', to: 'C', negativeWeights: true });
-    assert.strictEqual(result.cycle, true);
   });
 });
