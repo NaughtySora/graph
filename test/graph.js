@@ -489,3 +489,57 @@ describe('graph', () => {
   });
 });
 
+
+describe.only("bellman-ford", () => {
+  // const graph = new Graph({ directed: true, weighted: true });
+  // graph.add('a').add('b').add('c').add('d');
+  // graph.connect('a', 'b', 1);
+  // graph.connect('a', 'c', -4);
+  // graph.connect('b', 'c', 2);
+  // graph.connect('b', 'd', -2);
+  // graph.connect('c', 'd', 3);
+
+  // // a -> b 
+  // // a -> c
+  // // b -> c
+  // // b -> d 
+  // // c -> d
+  // // a -> b -> c -> d 1+2+3 = 6
+  // // a -> c -> d -4 + 3 = -1
+  // const res = graph.shortPathWeighted({
+  //   from: 'a',
+  //   to: 'd',
+  //   negativeWeights: true
+  // });
+  // console.dir({ res });
+
+  it('Bellman-Ford - positive weights', () => {
+    const graph = new Graph({ directed: true, weighted: true });
+    graph.add('A').add('B').add('C');
+    graph.connect('A', 'B', 2);
+    graph.connect('B', 'C', 3);
+    const result = graph.shortPathWeighted({ from: 'A', to: 'C', negativeWeights: true });
+    assert.deepStrictEqual(result.path, ['A', 'B', 'C']);
+    assert.strictEqual(result.distance, 5);
+  });
+
+  it('Bellman-Ford - negative weight', () => {
+    const graph = new Graph({ directed: true, weighted: true });
+    graph.add('A').add('B').add('C');
+    graph.connect('A', 'B', 2);
+    graph.connect('B', 'C', -1);
+    const result = graph.shortPathWeighted({ from: 'A', to: 'C', negativeWeights: true });
+    assert.deepStrictEqual(result.path, ['A', 'B', 'C']);
+    assert.strictEqual(result.distance, 1);
+  });
+
+  it('Bellman-Ford - negative cycle', () => {
+    const graph = new Graph({ directed: true, weighted: true });
+    graph.add('A').add('B').add('C');
+    graph.connect('A', 'B', 1);
+    graph.connect('B', 'C', -2);
+    graph.connect('C', 'A', -2);
+    const result = graph.shortPathWeighted({ from: 'A', to: 'C', negativeWeights: true });
+    assert.strictEqual(result.cycle, true);
+  });
+});

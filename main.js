@@ -484,12 +484,55 @@ class Graph {
     };
   }
 
+  #bellmanFord(from, to) {
+    const vFrom = this.#vertices.get(from);
+    if (vFrom === undefined) return;
+    const paths = new Map();
+    const dist = new Map([[vFrom.value, 0]]);
+    let totalVertices = this.#vertices.size - 1;
+    let touched = false;
+    while (totalVertices-- > 0) {
+      touched = false;
+      for (const vertex of this.#vertices.values()) {
+        const cost = dist.get(vertex.value);
+        if (vertex.out !== undefined && vertex.weights !== undefined) {
+          for (const link of vertex.out) {
+            const distCost = dist.get(link.value) ?? Infinity;
+            const weight = vertex.weights.get(link) ?? 0;
+            const min = Math.min(distCost, cost + weight);
+            if (min !== distCost) {
+              touched = true;
+              dist.set(link.value, min);
+              paths.set(link.value, vertex.value);
+            }
+          }
+        }
+      }
+      if (!touched) break;
+    }
+    const path = [to];
+    let pointer = to;
+    let max = paths.size + 1;
+    while (pointer !== undefined) {
+      if (--max === -1) break;
+      const next = paths.get(pointer);
+      if (next) path.push(next);
+      pointer = next;
+    }
+    paths.clear();
+    return {
+      distance: dist.get(to),
+      path: path.reverse(),
+      cycle: max === -1,
+    };
+  }
+
   shortPathWeighted({ from, to, negativeWeights = false } = {}) {
     const vFrom = this.#vertices.get(from);
     if (vFrom === undefined) return null;
     const vTo = this.#vertices.get(to);
     if (negativeWeights) {
-      throw new Error('negativeWeights algo is not implemented yet');
+      return this.#bellmanFord(from, to);
     } else {
       if (vTo !== undefined) return this.#dijkstraOne(vFrom, vTo);
       return this.#dijkstraMany(vFrom);
