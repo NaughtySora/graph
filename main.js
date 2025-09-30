@@ -516,6 +516,7 @@ class Graph {
     if (vFrom === undefined) return null;
     const vTo = this.#vertices.get(to);
     if (negativeWeights) {
+      const { dist, paths } = this.#bellmanFord(from);
       const findPath = target => {
         const path = [target];
         let pointer = target;
@@ -532,7 +533,6 @@ class Graph {
           cycle: max === -1,
         };
       };
-      const { dist, paths } = this.#bellmanFord(from);
       if (vTo !== undefined) return findPath(to);
       const dataset = [];
       for (const vertex of this.#vertices.values()) {
@@ -545,6 +545,13 @@ class Graph {
       return this.#dijkstraMany(vFrom);
     }
   }
+
+  isDense() {
+    // (v(v-1))/2
+  }
+
+  static DENSITY_FACTOR = 0.75;
 }
 
 module.exports = Graph;
+

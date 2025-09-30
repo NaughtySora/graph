@@ -5,7 +5,6 @@ const BinaryHeap = require("../lib/BinaryHeap.js");
 const assert = require("node:assert");
 
 describe('BinaryHeap', () => {
-
   it('compare should be function', () => {
     assert.throws(() => {
       new BinaryHeap();
