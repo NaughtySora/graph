@@ -606,25 +606,3 @@ describe('graph', () => {
     });
   });
 });
-
-describe.only("isDense", () => {
-  const graph = new Graph();
-  graph.add('a').add('b').add('c').add('e');
-  graph.connect('a', 'b');
-  graph.connect('a', 'c');
-  graph.connect('a', 'e');
-
-  graph.connect('b', 'a');
-  graph.connect('b', 'e');
-  graph.connect('b', 'c');
-
-  graph.connect('c', 'a');
-  graph.connect('c', 'd');
-  graph.connect('c', 'e');
-
-  graph.connect('e', 'c');
-  graph.connect('e', 'a');
-  graph.connect('e', 'b');
-
-  console.log(graph.isDense());
-});

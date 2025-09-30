@@ -1,4 +1,5 @@
 'use strict';
 
-require('./graph.js');
 require('./heap.js');
+require('./dsu.js');
+require('./graph.js');
