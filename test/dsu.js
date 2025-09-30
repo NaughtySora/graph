@@ -4,7 +4,7 @@ const { describe, it, beforeEach } = require('node:test');
 const assert = require('node:assert');
 const DSU = require('../lib/DSU.js');
 
-describe.only('DSU', async (t) => {
+describe('DSU', () => {
   let dsu = new DSU();
 
   beforeEach(() => {
@@ -15,6 +15,8 @@ describe.only('DSU', async (t) => {
   it('add', () => {
     assert.strictEqual(dsu.root('a'), 0);
     assert.strictEqual(dsu.root('b'), 1);
+    dsu.add('b');
+    assert.strictEqual(dsu.root('b'), 1);
     assert.strictEqual(dsu.root('c'), 2);
     assert.strictEqual(dsu.root('d'), 3);
     assert.strictEqual(dsu.root('e'), 4);
@@ -24,6 +26,8 @@ describe.only('DSU', async (t) => {
     dsu.union('a', 'b');
     dsu.union('c', 'd');
     assert.strictEqual(dsu.connected('a', 'b'), true);
+    assert.strictEqual(dsu.connected('c', 'd'), true);
+    dsu.union('c', 'd');
     assert.strictEqual(dsu.connected('c', 'd'), true);
     assert.strictEqual(dsu.connected('a', 'c'), false);
     dsu.union('b', 'c');
@@ -49,6 +53,7 @@ describe.only('DSU', async (t) => {
     dsu.root('d');
     const rootAfter = dsu.root('d');
     assert.strictEqual(rootBefore, rootAfter);
+    assert.strictEqual(dsu.root('z'), -1);
   });
 
   it('find', () => {
@@ -57,5 +62,6 @@ describe.only('DSU', async (t) => {
     dsu.union('a', 'b');
     assert.strictEqual(dsu.find(dsu.root('a')), 'a');
     assert.strictEqual(dsu.find(dsu.root('b')), 'a');
+    assert.strictEqual(dsu.find(10), undefined);
   });
 });
