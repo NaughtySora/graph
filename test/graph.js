@@ -221,6 +221,49 @@ describe('graph', () => {
       undirected.connect('e', 'c');
       assert.strictEqual(undirected.totalEdges(), 6);
     });
+
+    it("density", () => {
+      const undirected = new Graph();
+      undirected.add('a').add('b').add('c').add('e');
+      undirected.connect('a', 'b');
+      assert.strictEqual(undirected.density(), 0.16666666666666666);
+      undirected.connect('a', 'c');
+      assert.strictEqual(undirected.density(), 0.3333333333333333);
+      undirected.connect('a', 'e');
+      undirected.connect('b', 'a');
+      undirected.connect('b', 'c');
+      undirected.connect('b', 'e');
+      undirected.connect('c', 'e');
+      undirected.connect('c', 'a');
+      undirected.connect('c', 'b');
+      undirected.connect('e', 'a');
+      undirected.connect('e', 'b');
+      undirected.connect('e', 'c');
+      assert.strictEqual(undirected.density(), 1);
+    });
+
+    it("isDense undirected", () => {
+      const undirected = new Graph();
+      undirected.add('a').add('b').add('c').add('e');
+      undirected.connect('a', 'b');
+      assert.strictEqual(undirected.isDense(), false);
+      undirected.connect('a', 'c');
+      assert.strictEqual(undirected.isDense(), false);
+      undirected.connect('a', 'e');
+      undirected.connect('b', 'a');
+      assert.strictEqual(undirected.isDense(), false);
+      undirected.connect('b', 'c');
+      undirected.connect('b', 'e');
+      undirected.connect('c', 'e');
+      undirected.connect('c', 'a');
+      assert.strictEqual(undirected.isDense(), true);
+      undirected.connect('c', 'b');
+      undirected.connect('e', 'a');
+      undirected.connect('e', 'b');
+      undirected.connect('e', 'c');
+      assert.strictEqual(undirected.isDense(), true);
+    });
+
   });
 
   describe('weighted', () => {
@@ -618,7 +661,6 @@ describe('graph', () => {
       );
     });
 
-
     it("totalEdges", () => {
       const undirected = new Graph({ directed: true });
       undirected.add('a').add('b').add('c').add('e');
@@ -639,10 +681,52 @@ describe('graph', () => {
       undirected.connect('e', 'c');
       assert.strictEqual(undirected.totalEdges(), 12);
     });
+
+    it("density", () => {
+      const undirected = new Graph({ directed: true });
+      undirected.add('a').add('b').add('c').add('e');
+      undirected.connect('a', 'b');
+      assert.strictEqual(undirected.density(), 0.08333333333333333);
+      undirected.connect('a', 'c');
+      assert.strictEqual(undirected.density(), 0.16666666666666666);
+      undirected.connect('a', 'e');
+      undirected.connect('b', 'a');
+      undirected.connect('b', 'c');
+      undirected.connect('b', 'e');
+      undirected.connect('c', 'e');
+      undirected.connect('c', 'a');
+      undirected.connect('c', 'b');
+      undirected.connect('e', 'a');
+      undirected.connect('e', 'b');
+      undirected.connect('e', 'c');
+      assert.strictEqual(undirected.density(), 1);
+    });
+
+    it("isDense", () => {
+      const undirected = new Graph({ directed: true });
+      undirected.add('a').add('b').add('c').add('e');
+      undirected.connect('a', 'b');
+      assert.strictEqual(undirected.isDense(), false);
+      undirected.connect('a', 'c');
+      assert.strictEqual(undirected.isDense(), false);
+      undirected.connect('a', 'e');
+      undirected.connect('b', 'a');
+      undirected.connect('b', 'c');
+      undirected.connect('b', 'e');
+      assert.strictEqual(undirected.isDense(), false);
+      undirected.connect('c', 'e');
+      undirected.connect('c', 'a');
+      undirected.connect('c', 'b');
+      assert.strictEqual(undirected.isDense(), false);
+      undirected.connect('e', 'a');
+      undirected.connect('e', 'b');
+      assert.strictEqual(undirected.isDense(), true);
+      undirected.connect('e', 'c');
+      assert.strictEqual(undirected.isDense(), true);
+    });
   });
 });
 
-describe.only('total', () => {
+// describe.only('total', () => {
 
-
-});
+// });
