@@ -557,10 +557,7 @@ class Graph {
     for (const vertex of this.#vertices.values()) {
       mapper.set(vertex, mapper.size);
     }
-    const getKey = (...keys) => {
-      keys.sort();
-      return `${keys[0]}${keys[1]}`;
-    };
+    const getKey = (...keys) => (keys.sort(), `${keys[0]}${keys[1]}`);
     for (const vertex of this.#vertices.values()) {
       const i = mapper.get(vertex);
       if (vertex.out !== undefined) {
