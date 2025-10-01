@@ -606,3 +606,14 @@ describe('graph', () => {
     });
   });
 });
+
+describe.only('mst', () => {
+  const graph = new Graph({ weighted: true });
+  graph.add('a').add('b').add('c').add('d');
+  graph.connect('a', 'b', 1);
+  graph.connect('b', 'c', 2);
+  graph.connect('a', 'c', 3);
+  graph.connect('c', 'd', 4);
+  const mst = graph.mst();
+  console.log(mst);
+});

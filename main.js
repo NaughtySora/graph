@@ -1,6 +1,7 @@
 'use strict';
 
 const BinaryHeap = require("./lib/BinaryHeap.js");
+const DSU = require("./lib/DSU.js");
 
 class Graph {
   #weighted = false;
@@ -127,7 +128,9 @@ class Graph {
     if (vFrom === undefined) return;
     const vTo = this.#vertices.get(to);
     if (vTo === undefined) return;
-    return vFrom?.weights?.get(vTo);
+    const weight = vFrom?.weights?.get(vTo);
+    if (this.#directed) return weight;
+    return weight ?? vTo?.weights?.get(vFrom);
   }
 
   setWeight(from, to, weight) {
@@ -548,6 +551,30 @@ class Graph {
 
   isDense() {
     // (v(v-1))/2
+  }
+
+  mst() {
+    const edges = [];
+    for (const vertex of this.#vertices.values()) {
+      if (vertex.out === undefined || vertex.weights === undefined) continue;
+      for (const link of vertex.out) {
+        const weight = vertex.weights.get(link);
+        if (weight === undefined) continue;
+        edges.push({ vertex, link, weight });
+      }
+    }
+    edges.sort((a, b) => a.weight - b.weight);
+    const dsu = new DSU();
+    const mst = [];
+    for (const { vertex, link } of edges) {
+      dsu.add(vertex);
+      dsu.add(link);
+      if (!dsu.connected(vertex, link)) {
+        mst.push([vertex.value, link.value]);
+        dsu.union(vertex, link);
+      }
+    }
+    return mst;
   }
 
   static DENSITY_FACTOR = 0.75;
