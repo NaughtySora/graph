@@ -594,39 +594,41 @@ class Graph {
     const dsu = new DSU();
     const mst = new Set();
     for (const { vertex, link } of edges) {
-      dsu.add(vertex);
-      dsu.add(link);
-      if (!dsu.connected(vertex, link)) {
-        mst.add(vertex.value);
-        mst.add(link.value);
-        dsu.union(vertex, link);
-      }
+      dsu.add(vertex).add(link);
+      if (dsu.connected(vertex, link)) continue;
+      mst.add(vertex.value);
+      mst.add(link.value);
+      dsu.union(vertex, link);
     }
-    return [...mst];
+    return mst;
   }
 
   #prim() {
-    const heap = new BinaryHeap((a, b) => a.weight - b.weight);
     const mst = new Set();
-    const visited = new Set();
-    const vertex = this.#vertices.values().next().value;
-    visited.add(vertex);
-    if (vertex.out && vertex.weights) {
-      for (const neighbor of vertex.out) {
-        const weight = vertex.weights.get(neighbor);
-        if (weight === undefined) continue;
-        heap.push({ from: vertex, to: neighbor, weight });
-      }
+    const iter = this.#vertices.values();
+    let from = iter.next().value;
+    while (from.out === undefined || from.weights === undefined) {
+      const next = iter.next();
+      if (next.done) return mst;
+      from = next.value;
     }
+    const heap = new BinaryHeap((a, b) => a.weight - b.weight);
+    for (const to of from.out) {
+      const weight = from.weights.get(to);
+      if (weight === undefined) continue;
+      heap.push({ from, to, weight });
+    }
+    const visited = new Set();
+    visited.add(from);
     while (visited.size < this.#vertices.size) {
       const edge = heap.shift();
-      if (!edge) break;
+      if (edge === undefined) break;
       const { from, to } = edge;
       if (visited.has(to)) continue;
+      visited.add(to);
       mst.add(from.value);
       mst.add(to.value);
-      visited.add(to);
-      if (!to.out || !to.weights) continue;
+      if (to.out === undefined || to.weights === undefined) continue;
       for (const neighbor of to.out) {
         if (visited.has(neighbor)) continue;
         const weight = to.weights.get(neighbor);
@@ -634,7 +636,7 @@ class Graph {
         heap.push({ from: to, to: neighbor, weight });
       }
     }
-    return [...mst];
+    return mst;
   }
 
   mst() {
