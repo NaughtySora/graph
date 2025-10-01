@@ -8,10 +8,9 @@ class Graph {
   #directed = false;
   #vertices = new Map();
 
-  constructor({ weighted = false, directed = false, selfCycling = false } = {}) {
+  constructor({ weighted = false, directed = false } = {}) {
     this.#weighted = weighted;
     this.#directed = directed;
-    this.selfCycling = selfCycling;
   }
 
   get #direction() {
@@ -52,7 +51,7 @@ class Graph {
   }
 
   connect(from, to, weight) {
-    if (from === to && !this.selfCycling) return;
+    if (from === to) return;
     const vFrom = this.#vertices.get(from);
     if (vFrom === undefined) return this;
     const vTo = this.#vertices.get(to);
@@ -135,7 +134,7 @@ class Graph {
 
   setWeight(from, to, weight) {
     if (!this.#weighted) return;
-    if (from === to && !this.selfCycling) return;
+    if (from === to) return;
     const vFrom = this.#vertices.get(from);
     if (vFrom === undefined) return;
     const vTo = this.#vertices.get(to);
@@ -549,33 +548,36 @@ class Graph {
     }
   }
 
-  isDense() {
-    const size = this.#vertices.size;
-    if (size === 0) return false;
+  totalEdges() {
+    if (this.#vertices.size === 0) return 0;
     const mapper = new Map();
     const unique = new Set();
     for (const vertex of this.#vertices.values()) {
       mapper.set(vertex, mapper.size);
     }
-    const getKey = (...keys) => (keys.sort(), `${keys[0]}${keys[1]}`);
     for (const vertex of this.#vertices.values()) {
       const i = mapper.get(vertex);
-      if (vertex.out !== undefined) {
-        for (const link of vertex.out) {
-          const key = this.#directed ?
-            `${i}${mapper.get(link)}` :
-            getKey(i, mapper.get(link));
-          unique.add(key);
-        }
-      }
-      if (this.#directed && vertex.in !== undefined) {
-        for (const link of vertex.in) {
-          unique.add(`${i}${mapper.get(link)}`);
-        }
+      if (vertex.out === undefined) continue;
+      for (const link of vertex.out) {
+        const keys = [i, mapper.get(link)];
+        if (!this.#directed) keys.sort();
+        unique.add(`${keys[0]}${keys[1]}`);
       }
     }
+    return unique.size;
+  }
+
+  density() {
+    const size = this.#vertices.size;
+    if (size === 0) return 0;
     const max = (size * (size - 1)) / 2;
-    return (unique.size / max) > Graph.DENSITY_FACTOR;
+    const edges = this.totalEdges();
+    return (this.#directed ? edges / 2 : edges) / max;
+  }
+
+  isDense() {
+    if (this.#vertices.size === 0) return false;
+    return this.density() > Graph.DENSITY_FACTOR;
   }
 
   #kruskal() {
@@ -636,8 +638,7 @@ class Graph {
   }
 
   mst() {
-    if (this.isDense()) return this.#prim();
-    return this.#kruskal();
+    return this.isDense() ? this.#prim() : this.#kruskal();
   }
 
   static DENSITY_FACTOR = 0.8;

@@ -7,7 +7,7 @@ const { misc } = require('naughty-util');
 
 describe('graph', () => {
   describe('undirected', () => {
-    let graph = null;
+    let graph = new Graph();
 
     beforeEach(() => {
       graph = new Graph();
@@ -200,6 +200,27 @@ describe('graph', () => {
         ['B', 'C', 'D', 'E']
       );
     });
+
+    it("totalEdges", () => {
+      const undirected = new Graph();
+      undirected.add('a').add('b').add('c').add('e');
+      // (v(v-1) / 2) = 6
+      undirected.connect('a', 'b');
+      assert.strictEqual(undirected.totalEdges(), 1);
+      undirected.connect('a', 'c');
+      assert.strictEqual(undirected.totalEdges(), 2);
+      undirected.connect('a', 'e');
+      undirected.connect('b', 'a');
+      undirected.connect('b', 'c');
+      undirected.connect('b', 'e');
+      undirected.connect('c', 'e');
+      undirected.connect('c', 'a');
+      undirected.connect('c', 'b');
+      undirected.connect('e', 'a');
+      undirected.connect('e', 'b');
+      undirected.connect('e', 'c');
+      assert.strictEqual(undirected.totalEdges(), 6);
+    });
   });
 
   describe('weighted', () => {
@@ -224,17 +245,13 @@ describe('graph', () => {
       assert.strictEqual(graph.hasWeight(1, 2), false);
       graph.connect('a', 'a', 42);
       assert.strictEqual(graph.hasWeight('a', 'a'), false);
-
-      const selfCycled = new Graph({ weighted: true, selfCycling: true });
-      selfCycled.add('a');
-      selfCycled.connect('a', 'a', 42);
-      assert.strictEqual(selfCycled.hasWeight('a', 'a'), true);
       graph.connect('a', 'a', 42);
       assert.strictEqual(graph.hasWeight('a', 'a'), false);
     });
 
     it('get', () => {
       assert.strictEqual(graph.getWeight(2, 3), 'a');
+      assert.strictEqual(graph.getWeight(3, 2), 'a');
       assert.strictEqual(graph.getWeight(1, 2), undefined);
       assert.strictEqual(graph.getWeight(1, 'a'), undefined);
       assert.strictEqual(graph.getWeight('a', 1), undefined);
@@ -250,10 +267,6 @@ describe('graph', () => {
       assert.strictEqual(graph.getWeight(4, 3), undefined);
       graph.setWeight(1, 1, 'b');
       assert.strictEqual(graph.getWeight(4, 3), undefined);
-      const selfCycled = new Graph({ weighted: true, selfCycling: true });
-      selfCycled.add(1);
-      selfCycled.setWeight(1, 1, 42);
-      assert.strictEqual(selfCycled.getWeight(1, 1), 42);
       assert.strictEqual(graph.getWeight(1, 1), undefined);
     });
 
@@ -581,7 +594,7 @@ describe('graph', () => {
       assert.deepStrictEqual(graph.topologicalSort(), []);
     });
 
-    it('shortPath BFS ', () => {
+    it('shortPath BFS', () => {
       const graph = new Graph({ directed: true });
       graph.add('X').add('Y').add('Z').add('W');
       graph.connect('X', 'Y');
@@ -604,16 +617,32 @@ describe('graph', () => {
         ['Y', 'Z', 'W']
       );
     });
+
+
+    it("totalEdges", () => {
+      const undirected = new Graph({ directed: true });
+      undirected.add('a').add('b').add('c').add('e');
+      // v(v-1) = 12
+      undirected.connect('a', 'b');
+      assert.strictEqual(undirected.totalEdges(), 1);
+      undirected.connect('a', 'c');
+      assert.strictEqual(undirected.totalEdges(), 2);
+      undirected.connect('a', 'e');
+      undirected.connect('b', 'a');
+      undirected.connect('b', 'c');
+      undirected.connect('b', 'e');
+      undirected.connect('c', 'e');
+      undirected.connect('c', 'a');
+      undirected.connect('c', 'b');
+      undirected.connect('e', 'a');
+      undirected.connect('e', 'b');
+      undirected.connect('e', 'c');
+      assert.strictEqual(undirected.totalEdges(), 12);
+    });
   });
 });
 
-describe.only('mst', () => {
-  const graph = new Graph({ weighted: true });
-  graph.add('a').add('b').add('c').add('d');
-  graph.connect('a', 'b', 1);
-  graph.connect('b', 'c', 2);
-  graph.connect('a', 'c', 3);
-  graph.connect('c', 'd', 4);
-  const mst = graph.mst();
-  console.log(mst);
+describe.only('total', () => {
+
+
 });
