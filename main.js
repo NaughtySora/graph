@@ -550,10 +550,38 @@ class Graph {
   }
 
   isDense() {
-    // (v(v-1))/2
+    const size = this.#vertices.size;
+    if (size === 0) return false;
+    const mapper = new Map();
+    const unique = new Set();
+    for (const vertex of this.#vertices.values()) {
+      mapper.set(vertex, mapper.size);
+    }
+    const getKey = (...keys) => {
+      keys.sort();
+      return `${keys[0]}${keys[1]}`;
+    };
+    for (const vertex of this.#vertices.values()) {
+      const i = mapper.get(vertex);
+      if (vertex.out !== undefined) {
+        for (const link of vertex.out) {
+          const key = this.#directed ?
+            `${i}${mapper.get(link)}` :
+            getKey(i, mapper.get(link));
+          unique.add(key);
+        }
+      }
+      if (this.#directed && vertex.in !== undefined) {
+        for (const link of vertex.in) {
+          unique.add(`${i}${mapper.get(link)}`);
+        }
+      }
+    }
+    const max = (size * (size - 1)) / 2;
+    return (unique.size / max) > Graph.DENSITY_FACTOR;
   }
 
-  mst() {
+  #kruskal() {
     const edges = [];
     for (const vertex of this.#vertices.values()) {
       if (vertex.out === undefined || vertex.weights === undefined) continue;
@@ -565,19 +593,57 @@ class Graph {
     }
     edges.sort((a, b) => a.weight - b.weight);
     const dsu = new DSU();
-    const mst = [];
+    const mst = new Set();
     for (const { vertex, link } of edges) {
       dsu.add(vertex);
       dsu.add(link);
       if (!dsu.connected(vertex, link)) {
-        mst.push([vertex.value, link.value]);
+        mst.add(vertex.value);
+        mst.add(link.value);
         dsu.union(vertex, link);
       }
     }
-    return mst;
+    return [...mst];
   }
 
-  static DENSITY_FACTOR = 0.75;
+  #prim() {
+    const heap = new BinaryHeap((a, b) => a.weight - b.weight);
+    const mst = new Set();
+    const visited = new Set();
+    const vertex = this.#vertices.values().next().value;
+    visited.add(vertex);
+    if (vertex.out && vertex.weights) {
+      for (const neighbor of vertex.out) {
+        const weight = vertex.weights.get(neighbor);
+        if (weight === undefined) continue;
+        heap.push({ from: vertex, to: neighbor, weight });
+      }
+    }
+    while (visited.size < this.#vertices.size) {
+      const edge = heap.shift();
+      if (!edge) break;
+      const { from, to } = edge;
+      if (visited.has(to)) continue;
+      mst.add(from.value);
+      mst.add(to.value);
+      visited.add(to);
+      if (!to.out || !to.weights) continue;
+      for (const neighbor of to.out) {
+        if (visited.has(neighbor)) continue;
+        const weight = to.weights.get(neighbor);
+        if (weight == undefined) continue;
+        heap.push({ from: to, to: neighbor, weight });
+      }
+    }
+    return [...mst];
+  }
+
+  mst() {
+    if (this.isDense()) return this.#prim();
+    return this.#kruskal();
+  }
+
+  static DENSITY_FACTOR = 0.8;
 }
 
 module.exports = Graph;
