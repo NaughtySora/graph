@@ -602,7 +602,7 @@ class Graph {
     }
     return mst;
   }
-
+  //test prim and kruskal
   #prim() {
     const mst = new Set();
     const iter = this.#vertices.values();
