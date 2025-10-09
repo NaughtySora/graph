@@ -18,7 +18,6 @@ class Graph {
   }
 
   add(value) {
-    this.#direction;
     if (this.#vertices.has(value)) return this;
     this.#vertices.set(value, { value, });
     return this;
@@ -40,18 +39,20 @@ class Graph {
   delete(value) {
     const vertex = this.#vertices.get(value);
     if (vertex === undefined) return false;
-    const weighted = this.#weighted;
-    const directed = this.#directed;
     for (const vertex of this.#vertices.values()) {
-      if (vertex?.out !== undefined) vertex.out.delete(vertex);
-      if (directed && vertex?.in !== undefined) vertex.in.delete(vertex);
-      if (weighted && vertex?.weights !== undefined) vertex.weights.delete(vertex);
+      if (vertex.out !== undefined) vertex.out.delete(vertex);
+      if (this.#directed && vertex.in !== undefined) {
+        vertex.in.delete(vertex);
+      }
+      if (this.#weighted && vertex.weights !== undefined) {
+        vertex.weights.delete(vertex);
+      }
     }
     return this.#vertices.delete(value);
   }
 
   connect(from, to, weight) {
-    if (from === to) return;
+    if (from === to) return this;
     const vFrom = this.#vertices.get(from);
     if (vFrom === undefined) return this;
     const vTo = this.#vertices.get(to);
@@ -61,8 +62,7 @@ class Graph {
     vTo[this.#direction] ??= new Set();
     vTo[this.#direction].add(vFrom);
     if (this.#weighted && weight !== undefined) {
-      const weights = vFrom.weights ??= new Map();
-      weights.set(vTo, weight);
+      (vFrom.weights ??= new Map()).set(vTo, weight);
     }
     return this;
   }
@@ -93,7 +93,7 @@ class Graph {
     for (const vertex of vFrom[direction]) {
       vertices.push(vertex.value);
     }
-    return [...vertices];
+    return vertices;
   }
 
   getOutEdges(from) {
