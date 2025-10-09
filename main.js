@@ -637,5 +637,5 @@ class Graph {
   static #DENSITY_FACTOR = 0.8;
 }
 
-module.exports = Graph;
+module.exports = { Graph };
 

@@ -1,6 +1,6 @@
 'use strict';
 
-const Graph = require('../main.js');
+const { Graph } = require('../main.js');
 const { describe, it, beforeEach } = require('node:test');
 const assert = require('node:assert');
 const { misc } = require('naughty-util');
