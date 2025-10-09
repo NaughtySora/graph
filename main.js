@@ -244,6 +244,7 @@ class Graph {
       dfs(vertex, group);
       if (group.length > 0) groups.push(group);
     }
+    visited.clear();
     return groups;
   }
 
@@ -295,7 +296,9 @@ class Graph {
       for (const link of vertex.out) {
         if (!visited.has(link)) {
           if (detectCycle(link)) return true;
-        } else if (active.has(link)) return true;
+        } else {
+          if (active.has(link)) return true;
+        }
       }
       active.delete(vertex);
       return false;
@@ -330,29 +333,30 @@ class Graph {
   }
 
   #pathOne(vertex, to) {
-    if (!this.#vertices.has(to)) return [];
+    const target = this.#vertices.get(to);
+    if (target === undefined) return [];
     let queue = [vertex];
     const visited = new Set();
-    visited.add(vertex.value);
+    visited.add(vertex);
     const edges = new Map();
     for (let i = 0; i < queue.length; i++) {
       const vertex = queue[i];
       if (vertex.out === undefined) continue;
       for (const link of vertex.out) {
-        if (visited.has(link.value)) continue;
-        visited.add(link.value);
-        edges.set(link.value, vertex.value);
+        if (visited.has(link)) continue;
+        visited.add(link);
+        edges.set(link, vertex);
         queue.push(link);
-        if (edges.has(to)) break;
+        if (edges.has(target)) break;
       }
     }
     queue = null;
     visited.clear();
-    let edge = edges.get(to);
+    let edge = edges.get(target);
     if (edge === undefined) return (edges.clear(), []);
     const path = [to];
     while (edge !== undefined) {
-      path.push(edge);
+      path.push(edge.value);
       edge = edges.get(edge);
     }
     edges.clear();
