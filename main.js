@@ -589,11 +589,12 @@ class Graph {
     edges = null;
     return mst;
   }
- 
+
   #prim() {
     const mst = new Set();
     const iter = this.#vertices.values();
     let from = iter.next().value;
+    console.log(from);
     while (from.out === undefined || from.weights === undefined) {
       const next = iter.next();
       if (next.done) return mst;
@@ -605,8 +606,7 @@ class Graph {
       if (weight === undefined) continue;
       heap.push({ from, to, weight });
     }
-    const visited = new Set();
-    visited.add(from);
+    const visited = new Set([from]);
     while (visited.size < this.#vertices.size) {
       const edge = heap.shift();
       if (edge === undefined) break;
@@ -627,6 +627,10 @@ class Graph {
   }
 
   mst() {
+    if (this.#directed) {
+      throw new Error("MST can't be applied to directed graph");
+    }
+    if (this.#vertices.size === 0) return new Set();
     return this.isDense() ? this.#prim() : this.#kruskal();
   }
 

@@ -264,6 +264,47 @@ describe('graph', () => {
       assert.strictEqual(undirected.isDense(), true);
     });
 
+    describe('mst', () => {
+      it("empty", () => {
+        const graph = new Graph({ weighted: true, });
+        assert.deepStrictEqual(graph.mst(), new Set());
+      });
+
+      it("no connections", () => {
+        const graph = new Graph({ weighted: true, });
+        graph.add('a').add('b').add('c');
+        assert.deepStrictEqual(graph.mst(), new Set());
+      });
+
+      it("kruskal (sparse) groups", () => {
+        const graph = new Graph({ weighted: true, });
+        graph.add('a').add('b').add('c').add('d').add('e');
+        graph.connect('a', 'b', 2);
+        graph.connect('d', 'e', -4);
+        assert.deepStrictEqual(graph.mst(), new Set(['d', 'e', 'a', 'b']));
+      });
+
+      it("kruskal (sparse) connected", () => {
+        const graph = new Graph({ weighted: true, });
+        graph.add('a').add('b').add('c').add('d').add('e');
+        graph.connect('a', 'b', 10);
+        graph.connect('c', 'e', 64);
+        graph.connect('a', 'd', 22);
+        assert.deepStrictEqual(graph.mst(), new Set(['a', 'b', 'c', 'd', 'e']));
+      });
+
+      it("prim", () => {
+        const graph = new Graph({ weighted: true, });
+        graph.add('a').add('b').add('c').add('d')
+        graph.connect('a', 'b', 591);
+        graph.connect('a', 'c', 2);
+        graph.connect('a', 'd', -5);
+        graph.connect('b', 'd', 100);
+        graph.connect('c', 'd', 42);
+        graph.connect('c', 'b', 11);
+        assert.deepStrictEqual(graph.mst(), new Set(['a', 'd', 'c', 'b']));
+      });
+    });
   });
 
   describe('weighted', () => {
@@ -724,9 +765,13 @@ describe('graph', () => {
       undirected.connect('e', 'c');
       assert.strictEqual(undirected.isDense(), true);
     });
+
+    it('mst', () => {
+      assert.throws(() => {
+        const graph = new Graph({ weighted: true, directed: true });
+        graph.add('a').add('b').add('c').add('d').add('e');
+        graph.mst();
+      }, { message: "MST can't be applied to directed graph" });
+    });
   });
 });
-
-// describe.only('total', () => {
-
-// });
