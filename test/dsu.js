@@ -34,6 +34,15 @@ describe('DSU', () => {
     assert.strictEqual(dsu.connected('a', 'e'), false);
   });
 
+  it('union - reverse values', () => {
+    dsu.union('c', 'd');
+    dsu.union('c', 'a');
+    dsu.union('e', 'c');
+    assert.strictEqual(dsu.connected('e', 'a'), true);
+    assert.strictEqual(dsu.connected('e', 'd'), true);
+    assert.strictEqual(dsu.connected('e', 'b'), false);
+  });
+
   it('size', () => {
     dsu.union('a', 'b');
     dsu.union('c', 'd');
