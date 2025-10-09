@@ -366,17 +366,17 @@ class Graph {
   #pathMany(vertex) {
     let queue = [vertex];
     const visited = new Set();
-    visited.add(vertex.value);
-    const dist = new Map([[vertex.value, 0]]);
-    const parent = new Map();
+    visited.add(vertex);
+    const dist = new Map([[vertex, 0]]);
+    const edges = new Map();
     for (let i = 0; i < queue.length; i++) {
       const vertex = queue[i];
       if (vertex.out === undefined) continue;
       for (const link of vertex.out) {
-        if (visited.has(link.value)) continue;
-        visited.add(link.value);
-        parent.set(link.value, vertex.value);
-        dist.set(link.value, dist.get(vertex.value) + 1);
+        if (visited.has(link)) continue;
+        visited.add(link);
+        edges.set(link, vertex);
+        dist.set(link, dist.get(vertex) + 1);
         queue.push(link);
       }
     }
@@ -387,14 +387,14 @@ class Graph {
       const path = [];
       let pointer = edge;
       while (pointer !== undefined) {
-        path.push(pointer);
-        pointer = parent.get(pointer);
+        path.push(pointer.value);
+        pointer = edges.get(pointer);
       }
-      if (path.length === 1 && path[0] === edge) continue;
-      paths.set(edge, path.reverse());
+      if (path.length === 1 && path[0] === edge.value) continue;
+      paths.set(edge.value, path.reverse());
     }
     dist.clear();
-    parent.clear();
+    edges.clear();
     return paths;
   }
 
