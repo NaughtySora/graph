@@ -27,11 +27,8 @@
   },
   "devDependencies": {
     "@types/node": "^22.13.14",
-    "fast-check": "^4.3.0",
     "naughty-util": "^0.5.2",
-    "typescript": "^5.8.2"
-  },
-  "dependencies": {
+    "typescript": "^5.8.2",
     "c8": "^10.1.3"
   }
 }
