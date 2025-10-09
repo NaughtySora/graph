@@ -109,7 +109,7 @@ class Graph {
     if (vFrom === undefined) return false;
     const vTo = this.#vertices.get(to);
     if (vTo === undefined) return false;
-    if (vFrom?.[direction] === undefined) return false;
+    if (vFrom[direction] === undefined) return false;
     return vFrom[direction].has(vTo);
   }
 
@@ -139,8 +139,7 @@ class Graph {
     if (vFrom === undefined) return;
     const vTo = this.#vertices.get(to);
     if (vTo === undefined) return;
-    const weights = vFrom.weights ??= new Map();
-    weights.set(vTo, weight);
+    (vFrom.weights ??= new Map()).set(vTo, weight);
   }
 
   deleteWeight(from, to, weight) {
@@ -177,7 +176,7 @@ class Graph {
     for (const entries of this.#vertices.entries()) {
       const value = entries[1].value;
       if (visited.has(value)) continue;
-      const list = entries[1]?.out;
+      const list = entries[1].out;
       if (list === undefined) continue;
       for (const link of list) {
         visited.add(link.value);
@@ -219,10 +218,9 @@ class Graph {
       const vertex = queue[i];
       if (vertex.out === undefined) continue;
       for (const link of vertex.out) {
-        if (!visited.has(link.value)) {
-          visited.add(link.value);
-          queue.push(link);
-        }
+        if (visited.has(link.value)) continue;
+        visited.add(link.value);
+        queue.push(link);
       }
     }
     queue = null;
@@ -257,9 +255,8 @@ class Graph {
       visited.add(vertex);
       if (vertex[direction] !== undefined) {
         for (const link of vertex[direction]) {
-          if (!visited.has(link)) {
-            dfs(link, direction, stack);
-          }
+          if (visited.has(link)) continue;
+          dfs(link, direction, stack);
         }
       }
       stack.push(vertex);
