@@ -563,7 +563,7 @@ class Graph {
 
   isDense() {
     if (this.#vertices.size === 0) return false;
-    return this.density() > Graph.DENSITY_FACTOR;
+    return this.density() > Graph.#DENSITY_FACTOR;
   }
 
   #kruskal() {
@@ -634,7 +634,7 @@ class Graph {
     return this.isDense() ? this.#prim() : this.#kruskal();
   }
 
-  static DENSITY_FACTOR = 0.8;
+  static #DENSITY_FACTOR = 0.8;
 }
 
 module.exports = Graph;
