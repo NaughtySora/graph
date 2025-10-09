@@ -121,5 +121,11 @@ describe('BinaryHeap', () => {
       assert.strictEqual(heap.shift(), 6);
       assert.deepStrictEqual(heap.copy(), []);
     });
+    it('clear', () => {
+      heap.heapify([5, 2, 5, 4, 6]);
+      assert.strictEqual(heap.length, 5);
+      heap.clear();
+      assert.strictEqual(heap.length, 0);
+    });
   });
 });

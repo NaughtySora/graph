@@ -567,7 +567,7 @@ class Graph {
   }
 
   #kruskal() {
-    const edges = [];
+    let edges = [];
     for (const vertex of this.#vertices.values()) {
       if (vertex.out === undefined || vertex.weights === undefined) continue;
       for (const link of vertex.out) {
@@ -586,9 +586,10 @@ class Graph {
       mst.add(link.value);
       dsu.union(vertex, link);
     }
+    edges = null;
     return mst;
   }
-  //test prim and kruskal
+ 
   #prim() {
     const mst = new Set();
     const iter = this.#vertices.values();
