@@ -367,7 +367,6 @@ class Graph {
     let queue = [vertex];
     const visited = new Set();
     visited.add(vertex);
-    const dist = new Map([[vertex, 0]]);
     const edges = new Map();
     for (let i = 0; i < queue.length; i++) {
       const vertex = queue[i];
@@ -376,14 +375,13 @@ class Graph {
         if (visited.has(link)) continue;
         visited.add(link);
         edges.set(link, vertex);
-        dist.set(link, dist.get(vertex) + 1);
         queue.push(link);
       }
     }
     visited.clear();
     queue = null;
     const paths = new Map();
-    for (const edge of dist.keys()) {
+    for (const edge of edges.keys()) {
       const path = [];
       let pointer = edge;
       while (pointer !== undefined) {
@@ -393,7 +391,6 @@ class Graph {
       if (path.length === 1 && path[0] === edge.value) continue;
       paths.set(edge.value, path.reverse());
     }
-    dist.clear();
     edges.clear();
     return paths;
   }
