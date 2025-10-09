@@ -365,7 +365,7 @@ describe('graph', () => {
           graph.connect('c', 'd', 3);
           const { distance, cost, path } = graph.shortPathWeighted({ from: 'a' });
           assert.deepStrictEqual(distance, new Map([['b', 1], ['c', 3], ['d', 6]]));
-          assert.strictEqual(cost, -1);
+          assert.strictEqual(cost, 0);
           assert.strictEqual(path, null);
         });
       });
@@ -395,7 +395,7 @@ describe('graph', () => {
           graph.connect('c', 'd', 3);
           const { distance, cost, path } = graph.shortPathWeighted({ from: 'a' });
           assert.deepStrictEqual(distance, new Map([['b', 1], ['c', 3], ['d', 6]]));
-          assert.strictEqual(cost, -1);
+          assert.strictEqual(cost, 0);
           assert.strictEqual(path, null);
         });
       });

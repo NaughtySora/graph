@@ -407,79 +407,70 @@ class Graph {
     const distance = new Map();
     const visited = new Set();
     const queue = new BinaryHeap((a, b) => a.value - b.value);
-    queue.push({ vertex, value: 0 });
-    let item = queue.shift();
+    let item = { vertex, value: 0 };
     while (item !== undefined) {
       const vertex = item.vertex;
       if (!visited.has(vertex)) {
         visited.add(vertex);
-        if (vertex.out !== undefined && vertex.weights !== undefined) {
-          for (const link of vertex.out) {
-            const weight = vertex.weights.get(link);
-            if (weight === undefined) continue;
-            const current = dist.get(link) ?? Infinity;
-            const min = Math.min(current, dist.get(vertex) + weight);
-            if (current > min) {
-              dist.set(link, min);
-              distance.set(link.value, min);
-              queue.push({ vertex: link, value: min });
-            }
+        if (vertex.out === undefined || vertex.weights === undefined) continue;
+        for (const link of vertex.out) {
+          const weight = vertex.weights.get(link);
+          if (weight === undefined) continue;
+          const total = dist.get(vertex) + weight;
+          if ((dist.get(link) ?? Infinity) > total) {
+            dist.set(link, total);
+            distance.set(link.value, total);
+            queue.push({ vertex: link, value: total });
           }
         }
       }
       item = queue.shift();
     }
-    queue.clear();
+    dist.clear();
     visited.clear();
-    return {
-      distance,
-      path: null,
-      cost: -1,
-    };
+    return { distance, path: null, cost: 0, };
   }
 
   #dijkstraOne(from, to) {
     const dist = new Map([[from, 0]]);
-    const parent = new Map();
+    const edges = new Map();
     const visited = new Set();
     const queue = new BinaryHeap((a, b) => a.value - b.value);
-    queue.push({ vertex: from, value: 0 });
-    let item = queue.shift();
+    let item = { vertex: from, value: 0 };
     while (item !== undefined) {
       const vertex = item.vertex;
       if (!visited.has(vertex)) {
         visited.add(vertex);
-        if (vertex.out !== undefined && vertex.weights !== undefined) {
-          for (const link of vertex.out) {
-            const weight = vertex.weights.get(link);
-            if (weight === undefined) continue;
-            const current = dist.get(link) ?? Infinity;
-            const min = Math.min(current, dist.get(vertex) + weight);
-            if (current > min) {
-              dist.set(link, min);
-              parent.set(link.value, vertex.value);
-              queue.push({ vertex: link, value: min });
-            }
+        if (vertex.out === undefined || vertex.weights === undefined) continue;
+        for (const link of vertex.out) {
+          const weight = vertex.weights.get(link);
+          if (weight === undefined) continue;
+          const total = dist.get(vertex) + weight;
+          if ((dist.get(link) ?? Infinity) > total) {
+            dist.set(link, total);
+            edges.set(link, vertex);
+            queue.push({ vertex: link, value: total });
           }
         }
       }
       item = queue.shift();
     }
-    queue.clear();
     visited.clear();
     const path = [to.value];
-    let target = to.value;
+    let target = to;
     for (; ;) {
-      const next = parent.get(target);
+      const next = edges.get(target);
       if (next === undefined) break;
-      path.push(next);
+      path.push(next.value);
       target = next;
     }
-    parent.clear();
+    edges.clear();
+    const cost = dist.get(to);
+    dist.clear();
     return {
       distance: null,
       path: path.reverse(),
-      cost: dist.get(to)
+      cost,
     };
   }
 
