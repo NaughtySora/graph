@@ -483,16 +483,14 @@ class Graph {
       touched = false;
       for (const vertex of this.#vertices.values()) {
         const cost = dist.get(vertex.value) ?? Infinity;
-        if (vertex.out !== undefined && vertex.weights !== undefined) {
-          for (const link of vertex.out) {
-            const distCost = dist.get(link.value) ?? Infinity;
-            const weight = vertex.weights.get(link) ?? 0;
-            const min = Math.min(distCost, cost + weight);
-            if (min !== distCost) {
-              touched = true;
-              dist.set(link.value, min);
-              paths.set(link.value, vertex.value);
-            }
+        if (vertex.out === undefined || vertex.weights === undefined) continue;
+        for (const link of vertex.out) {
+          const distCost = dist.get(link.value) ?? Infinity;
+          const min = Math.min(distCost, cost + (vertex.weights.get(link) ?? 0));
+          if (min !== distCost) {
+            touched = true;
+            dist.set(link.value, min);
+            paths.set(link.value, vertex.value);
           }
         }
       }
@@ -544,10 +542,10 @@ class Graph {
       mapper.set(vertex, mapper.size);
     }
     for (const vertex of this.#vertices.values()) {
-      const i = mapper.get(vertex);
+      const index = mapper.get(vertex);
       if (vertex.out === undefined) continue;
       for (const link of vertex.out) {
-        const keys = [i, mapper.get(link)];
+        const keys = [index, mapper.get(link)];
         if (!this.#directed) keys.sort();
         unique.add(`${keys[0]}${keys[1]}`);
       }
