@@ -251,15 +251,15 @@ class Graph {
     if (!this.#directed) return this.wcc();
     const stack = [];
     const visited = new Set();
-    const dfs = (vertex, direction, stack) => {
+    const dfs = (vertex, direction, stack, callback = x => x) => {
       visited.add(vertex);
       if (vertex[direction] !== undefined) {
         for (const link of vertex[direction]) {
           if (visited.has(link)) continue;
-          dfs(link, direction, stack);
+          dfs(link, direction, stack, callback);
         }
       }
-      stack.push(vertex);
+      stack.push(callback(vertex));
     };
     for (const vertex of this.#vertices.values()) {
       if (visited.has(vertex)) continue;
@@ -271,11 +271,10 @@ class Graph {
       const group = [];
       const vertex = stack.pop();
       if (visited.has(vertex)) continue;
-      dfs(vertex, 'in', group);
-      if (group.length > 0) {
-        groups.push(group.map(vertex => vertex.value));
-      }
+      dfs(vertex, 'in', group, vertex => vertex.value);
+      if (group.length > 0) groups.push(group);
     }
+    visited.clear();
     return groups;
   }
 
