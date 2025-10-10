@@ -594,7 +594,6 @@ class Graph {
     const mst = new Set();
     const iter = this.#vertices.values();
     let from = iter.next().value;
-    console.log(from);
     while (from.out === undefined || from.weights === undefined) {
       const next = iter.next();
       if (next.done) return mst;
